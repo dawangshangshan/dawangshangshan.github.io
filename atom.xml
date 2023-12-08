@@ -1,0 +1,2148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://dawangshangshan.github.io</id>
+    <title>大王上山的Bolg</title>
+    <updated>2023-12-08T06:55:51.158Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://dawangshangshan.github.io"/>
+    <link rel="self" href="https://dawangshangshan.github.io/atom.xml"/>
+    <subtitle>大王上山的博客</subtitle>
+    <logo>https://dawangshangshan.github.io/images/avatar.png</logo>
+    <icon>https://dawangshangshan.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2023, 大王上山的Bolg</rights>
+    <entry>
+        <title type="html"><![CDATA[栈与队列算法专题]]></title>
+        <id>https://dawangshangshan.github.io/post/zhan-yu-dui-lie-suan-fa-zhuan-ti/</id>
+        <link href="https://dawangshangshan.github.io/post/zhan-yu-dui-lie-suan-fa-zhuan-ti/">
+        </link>
+        <updated>2023-12-08T06:54:21.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="循环队列">循环队列</h2>
+<p><img src="https://dawangshangshan.github.io/post-images/1702018523419.png" alt="" loading="lazy"><br>
+<img src="https://dawangshangshan.github.io/post-images/1702018531709.png" alt="" loading="lazy"></p>
+<p>如果队列可以循环使用，即在一个固定大小的数值中来实现队列，我们即称为循环队列</p>
+<h3 id="参数">参数</h3>
+<p>front：对头下标，存放队列第一个有效数据的下标</p>
+<p>rear：存放队尾元素的下一个下标</p>
+<h3 id="队列初始化">队列初始化</h3>
+<pre><code class="language-java">int[] circularqueue;
+int rear;
+int front;
+public MyCircularQueue(int k) {
+        circularqueue=new int[k+1];
+        front=1;
+        rear=1;
+    }
+</code></pre>
+<p>为了区分空队列和满队列：我们将空出一个空间来方便我们判断</p>
+<p>这样的话，当我们可以知道当rear==front时，队列为空；(rear+1)%circularqueue.length=front时，队列满了</p>
+<h3 id="进队">进队</h3>
+<p>进队我们就让rear往后移一位，即：rear+1；</p>
+<p>但是由于我们是循环队列，rear可以从图中a7回到a1，而rear+1，是无法完成这样的操作，接下来我们就将使用取模的方法实现</p>
+<pre><code class="language-java">public boolean enQueue(int value) {
+    //判断队列是否满了
+        if(isFull())return false;
+        else{
+            //由于rear指向的是队尾下一个元素，所以直接将要存放的数值放入到rear下标
+            circularqueue[rear]=value;
+            //rear的数值是属于[0，circularqueue.length-1]，（rear+1）%circularqueue.length,当rear=circularqueue.length-1，再加一，就超出数组下标，但是我们对其取模，就将它再次指向0下标
+            rear=(rear+1)%circularqueue.length;
+        }
+        return true;
+    }
+</code></pre>
+<h3 id="出队">出队</h3>
+<p>出队操作我们让front+1，但由于我们要在队列中循环，所以front+1也要进行取模操作</p>
+<pre><code class="language-java">public boolean deQueue() {
+		//队列为空是无法出队
+        if(isEmpty())return false;
+        else{
+        //将对头直接+1，后续进队时，会将出队的位置直接覆盖，所以无需进行其他操作
+            front=(front+1)%circularqueue.length;
+        }
+        return true;
+    }
+</code></pre>
+<h3 id="取对头">取对头</h3>
+<pre><code class="language-java">public int Front() {
+        if(isEmpty()){
+            return -1;
+        }
+        else{
+            return circularqueue[front];
+        }
+	}
+</code></pre>
+<h3 id="取队尾">取队尾</h3>
+<p>由于队尾的有效元素在rear-1出，而当rear为0时，就会使下标为-1，所以我们需要对其进行加上数组长度再取模操作</p>
+<pre><code class="language-java">public int Rear() {
+        if(isEmpty())return -1;
+        else{
+            return circularqueue[(rear-1+circularqueue.length)%circularqueue.length];
+        }
+    }
+</code></pre>
+<h3 id="判空">判空</h3>
+<pre><code class="language-java">public boolean isEmpty() {
+        return rear==front;
+    }
+</code></pre>
+<h3 id="判满">判满</h3>
+<pre><code class="language-java">public boolean isFull() {
+        return (rear+1)%circularqueue.length==front;
+    }
+</code></pre>
+<h2 id="栈的压入和弹出顺序">栈的压入和弹出顺序</h2>
+<h3 id="描述">描述</h3>
+<p>输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否可能为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1,2,3,4,5是某栈的压入顺序，序列4,5,3,2,1是该压栈序列对应的一个弹出序列，但4,3,5,1,2就不可能是该压栈序列的弹出序列。</p>
+<pre><code>输入：
+[1,2,3,4,5],[4,5,3,2,1]
+复制
+返回值：
+true
+复制
+说明：
+可以通过push(1)=&gt;push(2)=&gt;push(3)=&gt;push(4)=&gt;pop()=&gt;push(5)=&gt;pop()=&gt;pop()=&gt;pop()=&gt;pop()
+这样的顺序得到[4,5,3,2,1]这个序列，返回true
+</code></pre>
+<h3 id="思路">思路</h3>
+<p>我们由题目得知，有两个数组，一个为入栈数组，一个为出栈数组，判断出栈数组，是否符合入栈数组。</p>
+<p>这题思路比较简单，我们只需要模拟出栈的顺序就可以判断：</p>
+<pre><code class="language-java">public class Solution {
+    /**
+     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可
+     *
+     * 
+     * @param pushV (入栈数组)int整型一维数组 
+     * @param popV （出栈数组）int整型一维数组 
+     * @return bool布尔型
+     */
+    public boolean IsPopOrder (int[] pushV, int[] popV) {
+        //申请一个栈用于模拟入栈顺序和出栈顺序
+        Stack&lt;Integer&gt;elem=new Stack&lt;&gt;();
+        //用于记录入栈数组下标
+        int j=0;
+		//循环访问入栈数组
+        for(int i=0;i&lt;popV.length;i++){
+            //当栈为空，或者栈顶元素不等与i下标的出栈元素时，一直将入栈数组对应的元素入栈，模拟入栈
+            while(j&lt;popV.length&amp;&amp;(elem.empty()||elem.peek()!=popV[i])){
+                elem.push(pushV[j]);
+                j++;
+            }
+            //如果栈顶元素与i下标出栈元素相同，我们就将栈顶pop，模拟栈出。
+            if(elem.peek()==popV[i]){
+                elem.pop();
+            } 
+        }
+        //当最后栈为空，就说明出栈顺序没有问题
+        if(elem.empty())return true;
+        return false;
+    }
+}
+</code></pre>
+<h2 id="逆波兰表达式">逆波兰表达式</h2>
+<h3 id="描述-2">描述</h3>
+<p>给你一个字符串数组 <code>tokens</code> ，表示一个根据 <a href="https://baike.baidu.com/item/%E9%80%86%E6%B3%A2%E5%85%B0%E5%BC%8F/128437">逆波兰表示法</a> 表示的算术表达式。</p>
+<p>请你计算该表达式。返回一个表示表达式值的整数。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>
+<p>有效的算符为 <code>'+'</code>、<code>'-'</code>、<code>'*'</code> 和 <code>'/'</code> 。</p>
+</li>
+<li>
+<p>每个操作数（运算对象）都可以是一个整数或者另一个表达式。</p>
+</li>
+<li>
+<p>两个整数之间的除法总是 <strong>向零截断</strong> 。</p>
+</li>
+<li>
+<p>表达式中不含除零运算。</p>
+</li>
+<li>
+<p>输入是一个根据逆波兰表示法表示的算术表达式。</p>
+</li>
+<li>
+<p>答案及所有中间计算结果可以用 <strong>32 位</strong> 整数表示。</p>
+</li>
+<li>
+<pre><code class="language-java">输入：tokens = [&quot;2&quot;,&quot;1&quot;,&quot;+&quot;,&quot;3&quot;,&quot;*&quot;]
+输出：9
+解释：该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
+</code></pre>
+</li>
+</ul>
+<h3 id="思路-2">思路</h3>
+<p>这个问题的解决思路相对比较简单，困难的是知道什么事逆波兰表达式，各位看官可自行了解，这里便不多赘述。</p>
+<p>当我们遇到数字时，将数字入栈</p>
+<p>遇到运算符时，取出栈顶元素p2，然后再取出栈顶元素p1，p2为运算符的右值，p1为左值，得出的结果入栈，重复此操作，直至将表达式遍历完成，最后的结果就是栈留下的最后一个元素。</p>
+<pre><code class="language-java">class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack&lt;Integer&gt; elem=new Stack&lt;&gt;();
+        for(int i=0;i&lt;tokens.length;i++){
+            //取出表达式
+            String temp=tokens[i];
+            //当为运算符时
+            if(temp.equals(&quot;-&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1-p2);
+            }
+            else if(temp.equals(&quot;*&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1*p2);
+            }else if(temp.equals(&quot;+&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1+p2);
+            }else if(temp.equals(&quot;/&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1/p2);
+            }
+            //当是数字的时候
+            else{
+                elem.push(Integer.valueOf(temp));
+            }
+        }  
+        //最后一个元素就是表达式结果
+        return elem.pop();
+    }
+
+}
+</code></pre>
+<h2 id="用栈模拟实现队列">用栈模拟实现队列</h2>
+<h3 id="描述-3">描述</h3>
+<p>请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（<code>push</code>、<code>pop</code>、<code>peek</code>、<code>empty</code>）：</p>
+<pre><code class="language-java">输入：
+[&quot;MyQueue&quot;, &quot;push&quot;, &quot;push&quot;, &quot;peek&quot;, &quot;pop&quot;, &quot;empty&quot;]
+[[], [1], [2], [], [], []]
+输出：
+[null, null, null, 1, 1, false]
+</code></pre>
+<h3 id="思路-3">思路</h3>
+<p>我们使用两个栈来辅助我们实现队列，一个是作为入队用的栈stack1，一个用作出队的栈stack2</p>
+<p>当我们入队时，直接将数据入栈到stack1中</p>
+<p>出队时，如果stack2 为空，将stack中的数据出栈并入栈到stack2中，再出栈stack2</p>
+<p>如果不为空，直接出栈stack2</p>
+<pre><code class="language-java">class MyQueue {
+    Stack&lt;Integer&gt;stack1;
+    Stack&lt;Integer&gt;stack2;
+    public MyQueue() {
+        stack1=new Stack&lt;&gt;();
+        stack2=new Stack&lt;&gt;();
+    }
+    
+    public void push(int x) {
+        stack1.push(x);
+    }
+    
+    public int pop() {
+        	//队列为空直接返回-1
+        if(empty())return -1;
+        else{
+                //至少有一个栈不为空
+            if(stack2.empty()){
+                //将stack1的数据入到stack2
+                while(!stack1.empty()){
+                    stack2.push(stack1.pop());
+                }
+                //stack2栈顶就是队列头元素
+                return stack2.pop();
+            }else{
+                return stack2.pop();
+            }
+        }
+    }
+    
+    public int peek() {
+    	//队列为空直接返回-1
+        if(empty())return -1;
+        //至少有一个栈不为空
+        else{
+        	//stack1不为空时
+             if(stack2.empty()){
+             //将stack1的数据入到stack2
+                 while(!stack1.empty()){
+                    stack2.push(stack1.pop());
+                }
+               //stack2栈顶就是队列头元素
+                return stack2.peek();
+            }else{
+                return stack2.peek();
+            }
+        }
+    }
+    //当1、2两个栈都为空时，队列为空
+    public boolean empty() {
+        return stack1.empty()&amp;&amp;stack2.empty();
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[java小项目——图书管理系统]]></title>
+        <id>https://dawangshangshan.github.io/post/java-xiao-xiang-mu-tu-shu-guan-li-xi-tong/</id>
+        <link href="https://dawangshangshan.github.io/post/java-xiao-xiang-mu-tu-shu-guan-li-xi-tong/">
+        </link>
+        <updated>2023-12-06T09:08:22.000Z</updated>
+        <summary type="html"><![CDATA[<p>当我们学完了javaSE之后，总感觉有些空虚——学了这些东西能做些什么呢？</p>
+<p>今天给大家介绍一个项目——图书管理系统小项目，一个包含了<strong>封装、继承、多态、异常</strong>的项目，将自己所学到的知识有运用出来！</p>
+<h2 id="项目大概组成">项目大概组成：</h2>
+<p>我们将实现一个：管理员可以增加、删除、查找书籍，用户可以查看、借阅、归还书籍</p>
+<p>我们将对每一个大的分类开辟一个包，方便对其进行管理。</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231206153430941.png" alt="image-20231206153430941" loading="lazy"></figure>
+<h2 id="书架包">书架包</h2>
+<p>对于书架这个包，我们将创建两个类：书、书架。</p>
+<h3 id="书">书</h3>
+<p>书是用于描述书这个抽象类，将包含书的名字，作者，价格，类型，是否被借出；</p>
+<p>而对于书我们只实现一些基本都get和set操作，并重写toString方法。</p>
+<pre><code class="language-java">package book;
+
+import java.util.Objects;
+
+public class Book {
+    private String name;
+    private String athour;
+    private int price;
+    private String type;
+    private boolean isBorrowed;
+
+    public Book(String name, String athour, int price, String type) {
+        this.name = name;
+        this.athour = athour;
+        this.price = price;
+        this.type = type;
+        this.isBorrowed = isBorrowed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAthour() {
+        return athour;
+    }
+
+    public void setAthour(String athour) {
+        this.athour = athour;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isBorrowed() {
+        return isBorrowed;
+    }
+
+    public void setBorrown(boolean borrowed) {
+        isBorrowed = borrowed;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Book{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                &quot;, athour='&quot; + athour + '\'' +
+                &quot;, price=&quot; + price +
+                &quot;, type='&quot; + type + '\'' +
+                ((isBorrowed == true) ? &quot; 已经借出&quot; : &quot; 未被借出&quot;) +
+                '}';
+    }
+
+
+
+}
+
+</code></pre>
+<h3 id="书架类">书架类</h3>
+<p>书架类的成员变量也比较简单：书数组和记录书数组内有效书的大小。</p>
+<p>书架类的方法我们只是有简单的set和get方法</p>
+<pre><code class="language-java">package book;
+
+public class BookList {
+    private Book[] books;
+    private int usedSize;
+    public static final int maxSize=10;
+
+    public BookList() {
+        this.books = new Book[maxSize];
+        this.usedSize = 3;
+        this.books[0]=new Book(&quot;三国演义&quot;,&quot;罗贯中&quot;,10,&quot;小说&quot;);
+        this.books[1] = new Book(&quot;西游记&quot;,&quot;吴承恩&quot;,9,&quot;小说&quot;);
+        this.books[2] = new Book(&quot;红楼梦&quot;,&quot;曹雪芹&quot;,19,&quot;小说&quot;);
+    }
+
+    public Book getBooks(int pos) {
+        return books[pos];
+    }
+
+    public void setBooks(Book books,int pos) {
+        this.books[pos] = books;
+    }
+
+    public int getUsedSize() {
+        return usedSize;
+    }
+
+    public void setUsedSize(int usedSize) {
+        this.usedSize = usedSize;
+    }
+}
+
+</code></pre>
+<h2 id="操作包">操作包</h2>
+<p>对于操作包内的类，我们讲使用接口来实现——为什么使用接口？</p>
+<p>因为对于不同的操作，只需要使用同一个接口，我们就行只用一个接口来调用所有操作，这大大减少了我们的代码量和增加阅读便利。</p>
+<h3 id="操作接口">操作接口</h3>
+<pre><code class="language-java">package operation;
+import book.BookList;
+public  interface IOopertation {
+    void work(BookList books);
+
+}
+</code></pre>
+<h3 id="增加书籍类">增加书籍类</h3>
+<p>由于我们要对书籍类的对象进行创建，并将书籍放入书架的操作，所以我们需要导入书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class AddOpertation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;输入书名：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+
+        System.out.println(&quot;请输入作者：&quot;);
+        String author = scanner.nextLine();
+
+        System.out.println(&quot;请输入类型：&quot;);
+        String type = scanner.nextLine();
+
+        System.out.println(&quot;请输入价格：&quot;);
+        int price = scanner.nextInt();
+
+        Book tempbook=new Book(name,author,price,type);
+        //创建书籍对象
+        int currentsize= books.getUsedSize();
+        //查看是否有重复的
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book book1 = books.getBooks(i);
+            if(book1.getName().equals(name)) {
+                System.out.println(&quot;有这本书，不进行存放了！&quot;);
+                return;
+            }
+        }
+        //书架容量是否满了
+        if(books.getUsedSize()==BookList.maxSize){
+            System.out.println(&quot;书架满了&quot;);
+        }else{
+            //未满
+            books.setBooks(tempbook,currentsize);
+            //容量加一
+            books.setUsedSize(currentsize+1);
+        }
+    }
+
+}
+
+</code></pre>
+<h3 id="删除书籍类">删除书籍类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Deleteopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;删除图书！&quot;);
+        System.out.println(&quot;请输入要删除的图书&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        int pos=-1;
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                pos=i;
+                break;
+            }
+            if(i == currentsize) {
+                System.out.println(&quot;没有你要删除的图书！&quot;);
+                return;
+            }
+        }
+        int i=0;
+        //将空出来的位置填充
+        for (i = pos; i &lt; currentsize-1; i++) {
+            Book temp=book.getBooks(i+1);
+            book.setBooks(temp,i);
+        }
+        book.setBooks(null,i);
+
+        book.setUsedSize(currentsize-1);
+    }
+}
+</code></pre>
+<h3 id="借阅书架类">借阅书架类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<p>在此操作中，我们查阅到你想要的书，并将书的是否借阅的值改为true</p>
+<pre><code>package operation;
+
+import book.BookList;
+import book.Book;
+import java.util.Scanner;
+
+public class Borrowoperation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;请输入要借阅的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= books.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=books.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                if(tempbook.isBorrowed()==false){
+                    System.out.println(&quot;借阅成功！&quot;);
+                    tempbook.setBorrown(true);
+                    return;
+                }
+                else {
+                    System.out.println(&quot;已经被借阅！&quot;);
+                }
+            }
+        }
+        System.out.println(&quot;没有此书！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="退出类">退出类</h3>
+<pre><code class="language-java">package operation;
+
+import book.BookList;
+
+public class Exitopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;退出系统&quot;);
+        System.exit(0);
+    }
+}
+</code></pre>
+<h3 id="查找书籍类">查找书籍类</h3>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Findopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;请输入你所查询的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                System.out.println(&quot;找到你所查询的书籍了：&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;书库中没有此书籍！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="归还书籍类">归还书籍类</h3>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class ReturnOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;归还图书！&quot;);
+        Scanner scanner=new Scanner(System.in);
+        System.out.println(&quot;输入要归还的书籍：&quot;);
+        String name=scanner.nextLine();
+        for (int i = 0; i &lt; book.getUsedSize(); i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                tempbook.setBorrown(false);
+                System.out.println(&quot;归还成功&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;你归还的图书 不存在！！ &quot;);
+    }
+}
+
+</code></pre>
+<p>打印全部书籍类</p>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+import com.sun.javaws.IconUtil;
+
+public class ShowOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;打印图书:&quot;);
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            System.out.println(tempbook);
+        }
+    }
+}
+
+</code></pre>
+<h2 id="用户包">用户包</h2>
+<p>对于用户包，我们在包下会创建两个类：普通用户，管理员，但是我们在实现时，发现，两个类有很多相似的地方，于是就用一个名为的user的父类，来包含他们之间的共同之处。</p>
+<h3 id="user父类">user父类</h3>
+<p>我们作为使用人员，可以进行不同的操作，所以我们使用了一个接口数组，来实现我们不同的操作</p>
+<p>对于用户来说，都有点一个菜单栏</p>
+<pre><code class="language-java">package user;
+import operation.IOopertation;
+import book.BookList;
+public abstract class user {
+    protected String name;
+    protected IOopertation[] ioopertation;
+    public user(String name) {
+        this.name = name;
+    }
+
+    public abstract int menu();
+
+
+    public void doOperation(int choice, BookList bookList) {
+        ioopertation[choice].work(bookList);
+    }
+}
+</code></pre>
+<h3 id="adminuser">adminUser</h3>
+<p>对于管理人员来说，可以使用的操作为：增删查改，和打印全部书籍</p>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="normaluser">normalUser</h3>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="管理员登陆异常">管理员登陆异常</h3>
+<p>密码异常</p>
+<pre><code class="language-java">package user;
+
+public class PasswardException extends RuntimeException{
+    public PasswardException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<p>用户名异常</p>
+<pre><code class="language-java">package user;
+
+public class UsernameException extends RuntimeException{
+    public UsernameException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<h2 id="登陆">登陆</h2>
+<pre><code class="language-java">import book.BookList;
+import user.*;
+import java.util.Scanner;
+
+
+public class Login {
+    private static final String userName=&quot;admin&quot;;
+    private static final String passward=&quot;123456&quot;;
+    //返回不同的用户类
+    public static user login(){
+        System.out.println(&quot;请输入你的身份，1：管理员  2：普通用户-》&quot;);
+        Scanner in=new Scanner(System.in);
+        int choice=in.nextInt();
+        if(choice==1){
+            System.out.println(&quot;请输入管理员姓名：&quot;);
+           	in = new Scanner(System.in);
+            String name=in.nextLine();
+            //抛出异常
+            if(!name.equals(Login.userName)) {
+                throw new UsernameException(&quot;管理员名字输入错误&quot;);
+            }
+            System.out.println(&quot;请输入管理员密码&quot;);
+            String passwords=in.nextLine();
+            //抛出异常
+            if(!passwords.equals(Login.passward)){
+                throw new PasswardException(&quot;管理员密码错误&quot;);
+            }
+            return new adminUser(name);
+        }
+        else{
+            System.out.println(&quot;请输入你的姓名：&quot;);
+            String name=in.nextLine();
+
+            return new normalUser(name);
+        }
+
+
+    }
+    public static void main(String[] args) {
+        //创建书架
+        BookList bookList = new BookList();
+        //可能有异常
+        try {
+            //对用户类型进行选择，用父类对象接受子类对象，向上转型
+            user huser=login();
+            //不停的执行操作，知道选择退出
+            while(true){
+                int choice= huser.menu();
+                huser.doOperation(choice,bookList);
+            }
+        }catch (UsernameException x){
+            x.printStackTrace();
+        }catch (PasswardException x){
+            x.printStackTrace();
+        }
+
+
+    }
+}
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>在这个小项目中，我们运用了包对类进行管理，运用接口来实现调用的简化——调用接口就可以调用使用了接口的类，运用了继承来实现了多态，减少了代码量，提高了代码可读性。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>当我们学完了javaSE之后，总感觉有些空虚——学了这些东西能做些什么呢？</p>
+<p>今天给大家介绍一个项目——图书管理系统小项目，一个包含了<strong>封装、继承、多态、异常</strong>的项目，将自己所学到的知识有运用出来！</p>
+<h2 id="项目大概组成">项目大概组成：</h2>
+<p>我们将实现一个：管理员可以增加、删除、查找书籍，用户可以查看、借阅、归还书籍</p>
+<p>我们将对每一个大的分类开辟一个包，方便对其进行管理。</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231206153430941.png" alt="image-20231206153430941" loading="lazy"></figure>
+<h2 id="书架包">书架包</h2>
+<p>对于书架这个包，我们将创建两个类：书、书架。</p>
+<h3 id="书">书</h3>
+<p>书是用于描述书这个抽象类，将包含书的名字，作者，价格，类型，是否被借出；</p>
+<p>而对于书我们只实现一些基本都get和set操作，并重写toString方法。</p>
+<pre><code class="language-java">package book;
+
+import java.util.Objects;
+
+public class Book {
+    private String name;
+    private String athour;
+    private int price;
+    private String type;
+    private boolean isBorrowed;
+
+    public Book(String name, String athour, int price, String type) {
+        this.name = name;
+        this.athour = athour;
+        this.price = price;
+        this.type = type;
+        this.isBorrowed = isBorrowed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAthour() {
+        return athour;
+    }
+
+    public void setAthour(String athour) {
+        this.athour = athour;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isBorrowed() {
+        return isBorrowed;
+    }
+
+    public void setBorrown(boolean borrowed) {
+        isBorrowed = borrowed;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Book{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                &quot;, athour='&quot; + athour + '\'' +
+                &quot;, price=&quot; + price +
+                &quot;, type='&quot; + type + '\'' +
+                ((isBorrowed == true) ? &quot; 已经借出&quot; : &quot; 未被借出&quot;) +
+                '}';
+    }
+
+
+
+}
+
+</code></pre>
+<h3 id="书架类">书架类</h3>
+<p>书架类的成员变量也比较简单：书数组和记录书数组内有效书的大小。</p>
+<p>书架类的方法我们只是有简单的set和get方法</p>
+<pre><code class="language-java">package book;
+
+public class BookList {
+    private Book[] books;
+    private int usedSize;
+    public static final int maxSize=10;
+
+    public BookList() {
+        this.books = new Book[maxSize];
+        this.usedSize = 3;
+        this.books[0]=new Book(&quot;三国演义&quot;,&quot;罗贯中&quot;,10,&quot;小说&quot;);
+        this.books[1] = new Book(&quot;西游记&quot;,&quot;吴承恩&quot;,9,&quot;小说&quot;);
+        this.books[2] = new Book(&quot;红楼梦&quot;,&quot;曹雪芹&quot;,19,&quot;小说&quot;);
+    }
+
+    public Book getBooks(int pos) {
+        return books[pos];
+    }
+
+    public void setBooks(Book books,int pos) {
+        this.books[pos] = books;
+    }
+
+    public int getUsedSize() {
+        return usedSize;
+    }
+
+    public void setUsedSize(int usedSize) {
+        this.usedSize = usedSize;
+    }
+}
+
+</code></pre>
+<h2 id="操作包">操作包</h2>
+<p>对于操作包内的类，我们讲使用接口来实现——为什么使用接口？</p>
+<p>因为对于不同的操作，只需要使用同一个接口，我们就行只用一个接口来调用所有操作，这大大减少了我们的代码量和增加阅读便利。</p>
+<h3 id="操作接口">操作接口</h3>
+<pre><code class="language-java">package operation;
+import book.BookList;
+public  interface IOopertation {
+    void work(BookList books);
+
+}
+</code></pre>
+<h3 id="增加书籍类">增加书籍类</h3>
+<p>由于我们要对书籍类的对象进行创建，并将书籍放入书架的操作，所以我们需要导入书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class AddOpertation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;输入书名：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+
+        System.out.println(&quot;请输入作者：&quot;);
+        String author = scanner.nextLine();
+
+        System.out.println(&quot;请输入类型：&quot;);
+        String type = scanner.nextLine();
+
+        System.out.println(&quot;请输入价格：&quot;);
+        int price = scanner.nextInt();
+
+        Book tempbook=new Book(name,author,price,type);
+        //创建书籍对象
+        int currentsize= books.getUsedSize();
+        //查看是否有重复的
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book book1 = books.getBooks(i);
+            if(book1.getName().equals(name)) {
+                System.out.println(&quot;有这本书，不进行存放了！&quot;);
+                return;
+            }
+        }
+        //书架容量是否满了
+        if(books.getUsedSize()==BookList.maxSize){
+            System.out.println(&quot;书架满了&quot;);
+        }else{
+            //未满
+            books.setBooks(tempbook,currentsize);
+            //容量加一
+            books.setUsedSize(currentsize+1);
+        }
+    }
+
+}
+
+</code></pre>
+<h3 id="删除书籍类">删除书籍类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Deleteopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;删除图书！&quot;);
+        System.out.println(&quot;请输入要删除的图书&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        int pos=-1;
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                pos=i;
+                break;
+            }
+            if(i == currentsize) {
+                System.out.println(&quot;没有你要删除的图书！&quot;);
+                return;
+            }
+        }
+        int i=0;
+        //将空出来的位置填充
+        for (i = pos; i &lt; currentsize-1; i++) {
+            Book temp=book.getBooks(i+1);
+            book.setBooks(temp,i);
+        }
+        book.setBooks(null,i);
+
+        book.setUsedSize(currentsize-1);
+    }
+}
+</code></pre>
+<h3 id="借阅书架类">借阅书架类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<p>在此操作中，我们查阅到你想要的书，并将书的是否借阅的值改为true</p>
+<pre><code>package operation;
+
+import book.BookList;
+import book.Book;
+import java.util.Scanner;
+
+public class Borrowoperation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;请输入要借阅的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= books.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=books.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                if(tempbook.isBorrowed()==false){
+                    System.out.println(&quot;借阅成功！&quot;);
+                    tempbook.setBorrown(true);
+                    return;
+                }
+                else {
+                    System.out.println(&quot;已经被借阅！&quot;);
+                }
+            }
+        }
+        System.out.println(&quot;没有此书！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="退出类">退出类</h3>
+<pre><code class="language-java">package operation;
+
+import book.BookList;
+
+public class Exitopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;退出系统&quot;);
+        System.exit(0);
+    }
+}
+</code></pre>
+<h3 id="查找书籍类">查找书籍类</h3>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Findopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;请输入你所查询的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                System.out.println(&quot;找到你所查询的书籍了：&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;书库中没有此书籍！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="归还书籍类">归还书籍类</h3>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class ReturnOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;归还图书！&quot;);
+        Scanner scanner=new Scanner(System.in);
+        System.out.println(&quot;输入要归还的书籍：&quot;);
+        String name=scanner.nextLine();
+        for (int i = 0; i &lt; book.getUsedSize(); i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                tempbook.setBorrown(false);
+                System.out.println(&quot;归还成功&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;你归还的图书 不存在！！ &quot;);
+    }
+}
+
+</code></pre>
+<p>打印全部书籍类</p>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+import com.sun.javaws.IconUtil;
+
+public class ShowOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;打印图书:&quot;);
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            System.out.println(tempbook);
+        }
+    }
+}
+
+</code></pre>
+<h2 id="用户包">用户包</h2>
+<p>对于用户包，我们在包下会创建两个类：普通用户，管理员，但是我们在实现时，发现，两个类有很多相似的地方，于是就用一个名为的user的父类，来包含他们之间的共同之处。</p>
+<h3 id="user父类">user父类</h3>
+<p>我们作为使用人员，可以进行不同的操作，所以我们使用了一个接口数组，来实现我们不同的操作</p>
+<p>对于用户来说，都有点一个菜单栏</p>
+<pre><code class="language-java">package user;
+import operation.IOopertation;
+import book.BookList;
+public abstract class user {
+    protected String name;
+    protected IOopertation[] ioopertation;
+    public user(String name) {
+        this.name = name;
+    }
+
+    public abstract int menu();
+
+
+    public void doOperation(int choice, BookList bookList) {
+        ioopertation[choice].work(bookList);
+    }
+}
+</code></pre>
+<h3 id="adminuser">adminUser</h3>
+<p>对于管理人员来说，可以使用的操作为：增删查改，和打印全部书籍</p>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="normaluser">normalUser</h3>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="管理员登陆异常">管理员登陆异常</h3>
+<p>密码异常</p>
+<pre><code class="language-java">package user;
+
+public class PasswardException extends RuntimeException{
+    public PasswardException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<p>用户名异常</p>
+<pre><code class="language-java">package user;
+
+public class UsernameException extends RuntimeException{
+    public UsernameException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<h2 id="登陆">登陆</h2>
+<pre><code class="language-java">import book.BookList;
+import user.*;
+import java.util.Scanner;
+
+
+public class Login {
+    private static final String userName=&quot;admin&quot;;
+    private static final String passward=&quot;123456&quot;;
+    //返回不同的用户类
+    public static user login(){
+        System.out.println(&quot;请输入你的身份，1：管理员  2：普通用户-》&quot;);
+        Scanner in=new Scanner(System.in);
+        int choice=in.nextInt();
+        if(choice==1){
+            System.out.println(&quot;请输入管理员姓名：&quot;);
+           	in = new Scanner(System.in);
+            String name=in.nextLine();
+            //抛出异常
+            if(!name.equals(Login.userName)) {
+                throw new UsernameException(&quot;管理员名字输入错误&quot;);
+            }
+            System.out.println(&quot;请输入管理员密码&quot;);
+            String passwords=in.nextLine();
+            //抛出异常
+            if(!passwords.equals(Login.passward)){
+                throw new PasswardException(&quot;管理员密码错误&quot;);
+            }
+            return new adminUser(name);
+        }
+        else{
+            System.out.println(&quot;请输入你的姓名：&quot;);
+            String name=in.nextLine();
+
+            return new normalUser(name);
+        }
+
+
+    }
+    public static void main(String[] args) {
+        //创建书架
+        BookList bookList = new BookList();
+        //可能有异常
+        try {
+            //对用户类型进行选择，用父类对象接受子类对象，向上转型
+            user huser=login();
+            //不停的执行操作，知道选择退出
+            while(true){
+                int choice= huser.menu();
+                huser.doOperation(choice,bookList);
+            }
+        }catch (UsernameException x){
+            x.printStackTrace();
+        }catch (PasswardException x){
+            x.printStackTrace();
+        }
+
+
+    }
+}
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>在这个小项目中，我们运用了包对类进行管理，运用接口来实现调用的简化——调用接口就可以调用使用了接口的类，运用了继承来实现了多态，减少了代码量，提高了代码可读性。</p>
+<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[2023年10月月报]]></title>
+        <id>https://dawangshangshan.github.io/post/2023-nian-10-yue-yue-bao/</id>
+        <link href="https://dawangshangshan.github.io/post/2023-nian-10-yue-yue-bao/">
+        </link>
+        <updated>2023-12-05T01:37:04.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="对于十月份的学习生活情况我自己做了一下总结">对于十月份的学习，生活情况我自己做了一下总结：</h3>
+<h4 id="学习上">学习上：</h4>
+<ul>
+<li>首先是顺利完成了c语言的学习，对c的理解更进一步了，期间也对指针有了更深入的理解</li>
+<li>开始重新学习了数据结构，对基本的数据结构类型有了初步的理解，同时对递归也进一步理解了</li>
+<li>不知道为何，对英语的学习是否懈怠的，特别是听力，感觉十分吃力</li>
+</ul>
+<h4 id="生活中">生活中：</h4>
+<ul>
+<li>本月对于体育锻炼还算是可以，我本人觉得生活中还是需要体育运动来调剂自己的生活，既能锻炼身体，又能调节心态，也行是在运动中，肾上腺素、多巴胺的分泌让人感到心情舒畅（毕竟情绪本质上也算是激素的分泌问题）</li>
+<li>明白了一件事：对于普通人来说，想要在某一件事上有所成就，除了天赋与努力外，就是长期以来的坚持，不需要一天花10小时去做，但可能需要几年每天都花半小时去做，我们不必要在短时间内一下子就要有所成就，我们可以将战线拉长，通过滴水穿石的坚持达到你想要的目标。</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[# 二叉树的题解  ## ]]></title>
+        <id>https://dawangshangshan.github.io/post/er-cha-shu-de-ti-jie/</id>
+        <link href="https://dawangshangshan.github.io/post/er-cha-shu-de-ti-jie/">
+        </link>
+        <updated>2023-11-03T00:51:05.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一二叉树中节点的路径">一.二叉树中节点的路径</h2>
+<p><strong>题目要求：在一个二叉树中，p为二叉树中的某一个值，编写算法求出p到根节点之间的路径</strong></p>
+<p>样列：</p>
+<p>给出二叉树的前序遍历：AB#D##C##</p>
+<p>查询节点D到根节点的路径</p>
+<p>输出：ABD</p>
+<h3 id="算法思路">算法思路：</h3>
+<p>利用回溯算法保存每个节点到根节点的路径，直到找到对应节点的路径时储存当前节点。</p>
+<figure data-type="image" tabindex="1"><img src="https://code-thinking-1253855093.file.myqcloud.com/pics/20210204151702443.png" alt="257.二叉树的所有路径" loading="lazy"></figure>
+<h3 id="代码实现">代码实现：</h3>
+<pre><code class="language-c++">void pathrecord(BT root, vector&lt;char&gt;&amp; spath, 
+                string&amp; retpath,char target) {
+
+	spath.push_back(root-&gt;val);
+	if (root-&gt;val == target) {
+		for (int i = 0; i &lt; spath.size(); i++) {
+			retpath += spath[i];
+		}
+		return;
+	}
+		if (root-&gt;left) {
+			pathrecord(root-&gt;left, spath, retpath, target);
+			spath.pop_back();
+		}
+		if (root-&gt;right) {
+			pathrecord(root-&gt;right, spath, retpath, target);
+			spath.pop_back();
+		}
+}
+</code></pre>
+<p>在实现代码时，四个参数的分别是：</p>
+<ul>
+<li>二叉树变量</li>
+<li>记录二叉树当前的路径的vector容器</li>
+<li>用于储存目标路径的字符串</li>
+<li>目标节点</li>
+</ul>
+<pre><code class="language-c++">spath.push_back(root-&gt;val);
+//将节点保存到spath中
+</code></pre>
+<pre><code class="language-c++">if (root-&gt;val == target) {
+	for (int i = 0; i &lt; spath.size(); i++) {
+		retpath += spath[i];
+	}
+	return;
+}
+//当我们找到对应节点时，将此时的spath中的内容保存到retpath中
+</code></pre>
+<h3 id="回溯">回溯：</h3>
+<p>这是这道题的关键部分，通常情况，回溯是伴随着递归同时出现。</p>
+<p>什么是回溯？</p>
+<p>如此图：</p>
+<figure data-type="image" tabindex="2"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231102114120835.png" alt="image-20231102114120835" loading="lazy"></figure>
+<p>当我们递归到D节点时，再退回的B节点时，我们记录路径的spath将不能再是ABD,</p>
+<p>而应该是AB，因为此时是在B节点上，此时应该对应：B到根节点的路径。</p>
+<pre><code class="language-c++">if (root-&gt;left) {
+		pathrecord(root-&gt;left, spath, retpath, target);
+		spath.pop_back();
+}
+if (root-&gt;right) {
+		pathrecord(root-&gt;right, spath, retpath, target);
+		spath.pop_back();
+}
+</code></pre>
+<p>当我们在遍历左右节点后，该操作就是回溯：</p>
+<pre><code class="language-c++">spath.pop_back();
+</code></pre>
+<h2 id="层序遍历">层序遍历：</h2>
+<p>我们使用队列来辅助实现<strong>队列先进先出，符合一层一层遍历的逻辑，而用栈先进后出适合模拟深度优先遍历也就是递归的逻辑。</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://code-thinking.cdn.bcebos.com/gifs/102%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86.gif" alt="102二叉树的层序遍历" loading="lazy"></figure>
+<pre><code class="language-c++">vector&lt;vector&lt;int&gt;&gt; tiertraversal(BT root) {
+	queue&lt;BT&gt;que;
+	if (root != NULL) {
+		que.push(root);
+	}
+	vector&lt;vector&lt;int&gt;&gt;result;
+	while (!que.empty()) {
+		int size = que.size();
+		vector&lt;int&gt;vec;
+		while (size--) {
+			BT temp = que.front();
+			que.pop();
+			vec.push_back(temp-&gt;val);
+			if (temp-&gt;left!=NULL) {
+				que.push(temp-&gt;left);
+			}
+			if(temp-&gt;right != NULL) {
+				que.push(temp-&gt;right);
+			}
+		}
+		result.push_back(vec);
+	}
+
+	return result;
+}
+
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231102120817577.png" alt="image-20231102120817577" loading="lazy"></figure>
+<p>对于该二叉树，我们先将根节点加进队列中，</p>
+<pre><code class="language-c++">queue&lt;BT&gt;que;//二叉树类型的队列
+	if (root != NULL) {
+		que.push(root);
+	}
+</code></pre>
+<p>此时第一层已经遍历完了。此时队列的大小为1，是二叉树第一层的大小。</p>
+<pre><code class="language-c++">vector&lt;vector&lt;int&gt;&gt;result;//记录所有层的节点
+	while (!que.empty()) {
+		int size = que.size();//记录当前层有多少节点
+		vector&lt;int&gt;vec;//用来记录当前层的节点
+		//当size为0时，说明当前层pop完毕
+		while (size--) {
+			BT temp = que.front();
+			que.pop();//将此层节点按照顺序出队列
+			vec.push_back(temp-&gt;val);//将节点数据push进记录当前                                      //  层的vector中
+			//每pop一个节点，就将它有效的左右节点push进入队列中
+			if (temp-&gt;left!=NULL) {
+				que.push(temp-&gt;left);
+			}
+			if(temp-&gt;right != NULL) {
+				que.push(temp-&gt;right);
+			}
+		}
+		//将此层的数据，push进入记录所有节点的vector容器中
+		result.push_back(vec);
+	}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[KMP算法难点解析]]></title>
+        <id>https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi/</id>
+        <link href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi/">
+        </link>
+        <updated>2023-10-24T05:24:49.000Z</updated>
+        <content type="html"><![CDATA[<p>当我们实现在文本中寻找是否有特定的文本出现，我们需要实现文本匹配算法。</p>
+<p>比如在文本：aabaabaaf   中，我们要查询是否有文本：aabaaf出现。</p>
+<p>关于暴力求解，我就不再过多赘述，直接进入正题。</p>
+<h2 id="kmp算法的关键最长公共前后缀">kmp算法的关键——最长公共前后缀</h2>
+<p>关于前后缀不了解的同学，我会简略说明。</p>
+<h3 id="前后缀">前后缀：</h3>
+<p><strong>前缀</strong>：<strong>是指不包含最后一个字符的所有以第一个字符开头的连续子串</strong>。</p>
+<p><strong>后缀</strong>：<strong>是指不包含第一个字符的所有以最后一个字符结尾的连续子串</strong>。</p>
+<p>如aabaa：</p>
+<p>前缀：a，aa，aab，aaba（从前向后）</p>
+<p>后缀：a,  aa ,  baa ,  abaa（从后向前）</p>
+<h3 id="最长公共前后缀next数组的关键">最长公共前后缀（next数组的关键）</h3>
+<p>我们使用上文的列子  eg：</p>
+<pre><code class="language-c">下标			012345
+文本			aabaaf
+前缀表  	   010120 
+//前缀表是用来回退的，它记录了模式串与主串(文本串)不匹配的时候，模式串应该从哪里开始重新匹配。
+</code></pre>
+<p>对于<strong>a</strong>，它是没有最长公共前后缀的。</p>
+<p>对于aa，前缀是a，后缀是a，前后缀有一个相同，这值为1</p>
+<p>对于aab，前缀是aa，后缀是ab，不相同，值为0；</p>
+<p>对于aaba，前缀是aab，后缀是aba，只有第一个相同，值为1；</p>
+<p>对于aabaa，前缀是aaba，后缀是  abaa，最长相等（aa）为2个，值为2。</p>
+<p>因此我们得到了此文本的前缀表。</p>
+<h2 id="next数组代码实现">next数组代码实现</h2>
+<pre><code class="language-c">//前缀表的实现
+//T字符串是所需要查询的文本，len是字符串大小
+void getNext(const char* T, int* next,int len)
+{
+	int j = 0;
+	next[0] = 0;
+    //第一个的前缀表一定是零，故初始化next[0]，并跳过第一个
+    //i=1
+	for (int i = 1; i &lt; len; i++)
+	{
+        //前后缀不相同的时候
+		while (j &gt; 0 &amp;&amp; T[i] != T[j])
+		{
+			j = next[j - 1];//当不相等时，j回退，如果回退后还不相							//等，继续回退，直到j==0。
+		}
+        //相同的时候
+		if (T[i] == T[j])
+		{
+			j++;
+		}
+		//将j（前缀的长度）赋给next[i]
+		next[i] = j;
+	}
+} 
+</code></pre>
+<p>当我们有了前缀表后，就可以进行匹配了。</p>
+<h2 id="kmp实现">KMP实现：</h2>
+<pre><code class="language-c">int KMP(char* S, char* T, int* next, int Slen,int Tlen)
+{
+    //j指向T，T是aabaaf。
+	int j = 0;
+    //i指向S文本，S是aabaabaaf。
+	for (int i = 0; i &lt; Slen; i++)
+	{
+
+		if (S[i] = T[j])
+		{
+			j++;
+		}
+		else {
+			while (j &gt; 0 &amp;&amp; S[i] != T[j])
+			{
+				j = next[j - 1];//退回，直到S[i]==T[j]或者j==0
+			}
+		}
+        //匹配完成
+		if (j == Tlen - 1 )
+		{
+			return 1;
+		}
+
+	}
+	return -1;
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[9月月报]]></title>
+        <id>https://dawangshangshan.github.io/post/yue-bao/</id>
+        <link href="https://dawangshangshan.github.io/post/yue-bao/">
+        </link>
+        <updated>2023-10-20T02:10:33.000Z</updated>
+        <content type="html"><![CDATA[<p><strong>九月算是比较”累“月份，在这个月里面，主要完成了以下内容：</strong></p>
+<ul>
+<li>对c语言进行了更深入的了解
+<ul>
+<li>结构体的内存对齐</li>
+<li>一级and二级指针的深入了解</li>
+<li>以及简单的常用库函数了学习以及模拟。</li>
+</ul>
+</li>
+<li>对数据结构中的线性表，链式表，栈，队列进行了学习
+<ul>
+<li>理论学习后</li>
+<li>基础的代码练习</li>
+<li>进行针对性题目练习</li>
+</ul>
+</li>
+</ul>
+<h4 id="总结">总结：</h4>
+<p>总体上在编程学习上完成度较高，但是对英语学习较为薄弱，希望挤出更多时间来学习英语。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[c语言——#define与条件编译]]></title>
+        <id>https://dawangshangshan.github.io/post/c-yu-yan-define-yu-tiao-jian-bian-yi/</id>
+        <link href="https://dawangshangshan.github.io/post/c-yu-yan-define-yu-tiao-jian-bian-yi/">
+        </link>
+        <updated>2023-10-19T12:31:24.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一-明示常量define">一、明示常量#define</h2>
+<h3 id="define"><code>#define</code>:</h3>
+<ul>
+<li>
+<p><code>#define</code> 用于创建宏定义，可以用来定义符号常量、函数宏和其他代码片段的替代。</p>
+</li>
+<li>
+<p>它不创建新的数据类型，而只是简单地进行文本替换。当你使用 <code>#define</code> 创建一个符号常量时，编译器会在编译时将该符号替换为相应的值。</p>
+</li>
+<li>
+<p>例如：</p>
+<pre><code class="language-c">#define PI 3.14159265359
+</code></pre>
+<p>这会在编译时将所有的</p>
+<pre><code class="language-c">PI
+</code></pre>
+<p>替换为</p>
+<pre><code class="language-c">3.14159265359
+</code></pre>
+</li>
+</ul>
+<h3 id="define-与typedef-的区别">#define 与typedef 的区别</h3>
+<ol>
+<li><strong>宏定义 vs. 类型定义</strong>:
+<ul>
+<li><code>#define</code> 用于创建宏定义，而不创建新的数据类型。它简单地进行文本替换。例如，<code>#define PI 3.14159265359</code> 会将所有的 <code>PI</code> 替换为 <code>3.14159265359</code>，但它仍然被视为一个常量符号而不是新的数据类型。</li>
+<li><code>typedef</code> 用于创建类型别名，允许你为现有的数据类型创建一个新的名称。这创建了一个新的类型，可以用来增加代码的可读性和可维护性。</li>
+</ul>
+</li>
+<li><strong>编译时替换 vs.类型别名</strong>:
+<ul>
+<li><code>#define</code> 进行编译时替换。它只是简单地将一个标识符替换为定义的文本，没有类型检查或类型信息。这可以导致潜在的错误，因为没有关于替换文本的类型信息。</li>
+<li><code>typedef</code> 创建一个新的类型别名，与原始类型相关。这有助于提高代码的可读性，并保留了类型检查。类型别名的使用可以帮助减少潜在的类型错误。</li>
+</ul>
+</li>
+<li><strong>作用范围</strong>:
+<ul>
+<li><code>#define</code> 定义的符号常量可以在整个程序中的任何地方使用，因为它们是简单的文本替换。它们通常不受作用域的限制。</li>
+<li><code>typedef</code> 创建的类型别名通常受限于它们的作用域，与类型定义的位置有关。这使得 <code>typedef</code> 更具局部性，有助于避免全局污染。</li>
+</ul>
+</li>
+</ol>
+<p>总的来说，<code>#define</code> 用于创建宏定义，主要用于创建符号常量和代码替代，而 <code>typedef</code> 用于创建类型别名，主要用于提高代码的可读性和可维护性，以及创建新的类型别名。它们在用途、作用方式和范围上有很大的不同。</p>
+<h3 id="eg">eg：</h3>
+<pre><code class="language-c">#define INT_POINTER int *
+typedef int* int_pointer;
+int main()
+{
+    INT_POINTER a,b;
+    int_pointer c,d;
+}
+</code></pre>
+<p>在以上代码中a、b、c、d谁不是指针？</p>
+<p>答案是：b；</p>
+<p>为什么呢？</p>
+<p>我们对**#define 处理的进行替换**；得到</p>
+<pre><code class="language-c">int *a,b;
+</code></pre>
+<p>我们可以发现只有第一个是指针，因为*只有a才有，b没有，所有b是int类型:</p>
+<pre><code class="language-c">int (*a),b;
+</code></pre>
+<p>我们再对typedef 进行分析：</p>
+<pre><code class="language-c">(int *) a,b;
+//等价于
+int *a,int *b;
+</code></pre>
+<h3 id="再define中使用参数">再#define中使用参数</h3>
+<pre><code class="language-c">#define MAX(x,y) ((x)&gt;(y)?(x):(y))
+//其中x,y宏参数
+int main()
+{
+    int a=3;
+    int b=5;
+    int ret=MAX(a,b);
+}
+//当在代码中使用了MAX(a,b),编译器会将其替换((a)&gt;(b)?(a):(b))
+</code></pre>
+<p>需要注意以下几点：</p>
+<ol>
+<li>带参数的宏的参数被括在圆括号中，这有助于避免潜在的运算优先级问题。</li>
+<li>使用带参数的宏时，确保将参数括在圆括号中，以避免由于操作符优先级问题而导致意外的行为。</li>
+</ol>
+<h4 id="用宏参数擦创造字符串">用宏参数擦创造字符串：#</h4>
+<pre><code class="language-c">#define PRINT(a,type) printf(&quot; &quot;#a&quot; is type&quot;,a);
+
+int main()
+{
+	int b=10b;b
+	PRINT(b,%d);
+}
+//在宏中如果我们不使用 #a 而直接使用a，在打印是，只会打印出字符a出来，
+//而无法打印我们传递的d
+//使用 #a 就是将传递过去的参数给转换为字符串，以供我们打印
+</code></pre>
+<h2 id="条件编译">条件编译</h2>
+<p>条件编译是一种在C和C++中用于根据条件选择性包含或排除代码的技术。它使用预处理器指令，通常与 <code>#ifdef</code>、<code>#ifndef</code>、<code>#elif</code>、<code>#else</code> 和 <code>#endif</code> 一起使用。条件编译的主要目的是根据不同的编译时条件来配置程序，以在不同的情况下执行不同的代码。</p>
+<p>以下是一些常见的条件编译指令：</p>
+<ol>
+<li>
+<p><code>#ifdef</code> 和 <code>#ifndef</code>：</p>
+<ul>
+<li>
+<p><code>#ifdef</code> 检查是否已定义了指定的宏。</p>
+</li>
+<li>
+<p><code>#ifndef</code> 检查是否未定义指定的宏。</p>
+</li>
+<li>
+<p>例如：</p>
+<pre><code class="language-c">#ifdef DEBUG
+// 只有在 DEBUG 宏已定义时才编译这部分代码
+printf(&quot;Debug mode is enabled.\n&quot;);
+#endif
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><code>#elif</code> 和 <code>#else</code>：</p>
+<ul>
+<li>
+<p><code>#elif</code> 允许你在多个条件之间选择一个。</p>
+</li>
+<li>
+<p><code>#else</code> 用于指定一个条件不满足时要执行的代码块。</p>
+</li>
+<li>
+<p>例如：</p>
+<pre><code class="language-c">#ifdef DEBUG
+printf(&quot;Debug mode is enabled.\n&quot;);
+#elif RELEASE
+printf(&quot;Release mode is enabled.\n&quot;);
+#else
+printf(&quot;No build mode defined.\n&quot;);
+#endif
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><code>#endif</code>：</p>
+<ul>
+<li>用于结束条件编译块。</li>
+</ul>
+</li>
+</ol>
+<p>条件编译的使用场景包括：</p>
+<ul>
+<li>跨平台开发：根据不同的操作系统或编译器特性选择性地包含代码。</li>
+<li>调试信息：根据是否启用调试宏，可以包含或排除调试信息。</li>
+<li>特性开关：根据用户选项或配置文件中的特性开关选择性地启用或禁用功能。</li>
+<li>针对不同的硬件架构：可以根据不同的硬件平台选择性地编译代码。</li>
+</ul>
+<p>条件编译可以提高代码的灵活性，但过度使用可能会导致代码的可读性下降。因此，建议在需要时谨慎使用条件编译，以确保代码清晰、易维护和可移植。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[文件的输入输出]]></title>
+        <id>https://dawangshangshan.github.io/post/wen-jian-de-shu-ru-shu-chu/</id>
+        <link href="https://dawangshangshan.github.io/post/wen-jian-de-shu-ru-shu-chu/">
+        </link>
+        <updated>2023-10-10T14:11:42.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="文件是什么">文件是什么？</h2>
+<p>对于我们来说，我们熟知的是在c盘，d盘中一个个的文件，但对计算机来说，文件是在磁盘或者固态硬盘上的一段已命名的储存区。</p>
+<p>作为程序员我们关心c程序是如何处理文件。</p>
+<p>在c中，文件被炕做是一系列的字节，每个字节都可以单独读取。</p>
+<h2 id="文本模式和二进制模式">文本模式和二进制模式</h2>
+<p><em>所有的文件内容都是以二进制形式储存</em></p>
+<p><strong>文件模式：</strong></p>
+<ul>
+<li>但是文件最初使用<strong>二进制编码的字符</strong>（如ASCII或者Unicode）表示文本，则该文件就是文本文件</li>
+</ul>
+<p><strong>二进制模式：</strong></p>
+<ul>
+<li>如果文件中的二进制值表示机器语言代码或者数值数据（int，long类型的值）或者图片，音乐编码</li>
+<li>该文件就是二进制文件，其中包含二进制内容</li>
+</ul>
+<p>如：</p>
+<p>如有整数10000，如果以ASCII码的形式输出到磁盘，则磁盘中占用5个字节（每个字符一个字节），而二进制形式输出，则在磁盘上只占4个字节</p>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/026e11c6082742918cd82d4197544c68.png" alt="img" loading="lazy"></figure>
+<h2 id="标准io">标准I/O</h2>
+<p>标准I/O是ANSI C建立的一个标准I/O模型，是一个标准函数包和stdio.h头文件中的定义，具有一定的可移植性。标准IO库处理很多细节。例如缓存分配，以优化长度执行IO等。</p>
+<p>标准的IO提供了三种类型的缓存。</p>
+<ul>
+<li>全缓存：当填满标准IO缓存后才进行实际的IO操作。</li>
+<li>行缓存：当输入或输出中遇到新行符时，标准IO库执行IO操作。</li>
+<li>不带缓存：stderr就是了</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>打开</th>
+<th>fopen,freopen,fdopen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>关闭</td>
+<td>fclose</td>
+</tr>
+<tr>
+<td>读</td>
+<td>getc,fgetc,getchar<br/>fgets,gets<br/>fread</td>
+</tr>
+<tr>
+<td>写</td>
+<td>putc,fputc,putchar<br/>fputs,puts,<br/>fwrite</td>
+</tr>
+</tbody>
+</table>
+<h2 id="文件缓冲区">文件缓冲区</h2>
+<p>ANSI C标准采用“缓冲文件系统”处理数据文件。</p>
+<p>所谓缓冲文件系统是指系统自动地在内存区为程序中每一个正在使用的文件开辟一个文件缓冲区从内存向磁盘输出数据必须先送到内存中的缓冲区，装满缓冲区后才一起送到磁盘去。</p>
+<p>如果从磁盘向计算机读入数据，则一次从磁盘文件将一批数据输入到内存缓冲区(充满缓冲区)，然后再从缓冲区逐个地将数据送到程序数据区(给程序变量) 。</p>
+<p><strong>磁盘文件的存取：</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://img2018.cnblogs.com/i-beta/1183448/202002/1183448-20200229114252989-978233196.png" alt="img" loading="lazy"></figure>
+<p>磁盘文件，一般保存在硬盘、U盘等掉电不丢失的磁盘设备中，在需要时调入内存</p>
+<p>在内存中对文件进行编辑处理后，保存到磁盘中</p>
+<p>程序与磁盘之间交互，不是立即完成，系统或程序可根据需要设置缓冲区，以提高存取效率</p>
+<h3 id="更新文件缓存区c">更新文件缓存区c</h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int fflush(FILE *stream);
+</code></pre>
+<p>功能：更新缓冲区，让缓冲区的数据立马写到文件中。<br>
+参数：stream：文件指针</p>
+<p>返回值：成功：0   失败：-1</p>
+<h2 id="文件读取结束的判定">文件读取结束的判定</h2>
+<ol>
+<li>文本文件读取是否结束，判断返回值是否为 EOF （ fgetc ），或者 NULL （ fgets ）<br>
+例如：</li>
+</ol>
+<p>​				fgetc 判断是否为 EOF .<br>
+​				fgets 判断返回值是否为 NULL .</p>
+<ol start="2">
+<li>二进制文件的读取结束判断，判断返回值是否小于实际要读的个数。<br>
+例如：</li>
+</ol>
+<p>​				fread判断返回值是否小于实际要读的个数。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[一级指针与二级指针不得不说的秘密]]></title>
+        <id>https://dawangshangshan.github.io/post/yi-ji-zhi-zhen-yu-er-ji-zhi-zhen-bu-de-bu-shuo-de-mi-mi/</id>
+        <link href="https://dawangshangshan.github.io/post/yi-ji-zhi-zhen-yu-er-ji-zhi-zhen-bu-de-bu-shuo-de-mi-mi/">
+        </link>
+        <updated>2023-10-06T06:13:05.000Z</updated>
+        <summary type="html"><![CDATA[<h3 id="今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰让指针不在成为困扰我们写代码的绊脚石">今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰，让指针不在成为困扰我们写代码的绊脚石。</h3>
+<pre><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+//给整型指针a开辟n个整型空间
+void Init_sum(int *a,int n)
+{
+    a=(int *)malloc(sizeof(int)*n)
+}
+
+int main()
+{
+	int *A=NULL;
+    Init(A,2);
+    for(int i=0;i&lt;2;i++)
+    {
+        scanf(&quot;%d&quot;,&amp;A[i]);
+	}
+    for(int i=0;i&lt;2;i++)
+    {
+        printf(&quot;%d&quot;,A[i]);
+	}
+}
+</code></pre>
+<p>以上代码是否是正确的呢？</p>
+<p>可能你不禁泛起嘀咕：感觉没什么问题啊！</p>
+<p>但事实是这个程序是错误的</p>
+<p>接下来我们就解释为什么：</p>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1696573147653.png" alt="" loading="lazy"></figure>
+<p>那么我们如何改正此代码呢？</p>
+<pre><code class="language-c">void Init_sum(int **a,int n)
+{
+    *a=(int *)malloc(sizeof(int)*n)
+}
+Init(&amp;A,2);
+</code></pre>
+<p>我们只需要对Init_sum，和传参进行改造即可：参数由一级指针改为二级指针，传参是传地址。</p>
+<p>图解：</p>
+<figure data-type="image" tabindex="2"><img src="https://dawangshangshan.github.io/post-images/1696573159969.png" alt="" loading="lazy"></figure>
+<h3 id="总结如果只是单纯改变指针中的内容用一级指针即可而要改变它所指向对象则需要二级指针">总结：如果只是单纯改变指针中的内容，用一级指针即可，而要改变它所指向对象，则需要二级指针。</h3>
+]]></summary>
+        <content type="html"><![CDATA[<h3 id="今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰让指针不在成为困扰我们写代码的绊脚石">今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰，让指针不在成为困扰我们写代码的绊脚石。</h3>
+<pre><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+//给整型指针a开辟n个整型空间
+void Init_sum(int *a,int n)
+{
+    a=(int *)malloc(sizeof(int)*n)
+}
+
+int main()
+{
+	int *A=NULL;
+    Init(A,2);
+    for(int i=0;i&lt;2;i++)
+    {
+        scanf(&quot;%d&quot;,&amp;A[i]);
+	}
+    for(int i=0;i&lt;2;i++)
+    {
+        printf(&quot;%d&quot;,A[i]);
+	}
+}
+</code></pre>
+<p>以上代码是否是正确的呢？</p>
+<p>可能你不禁泛起嘀咕：感觉没什么问题啊！</p>
+<p>但事实是这个程序是错误的</p>
+<p>接下来我们就解释为什么：</p>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1696573147653.png" alt="" loading="lazy"></figure>
+<p>那么我们如何改正此代码呢？</p>
+<pre><code class="language-c">void Init_sum(int **a,int n)
+{
+    *a=(int *)malloc(sizeof(int)*n)
+}
+Init(&amp;A,2);
+</code></pre>
+<p>我们只需要对Init_sum，和传参进行改造即可：参数由一级指针改为二级指针，传参是传地址。</p>
+<p>图解：</p>
+<figure data-type="image" tabindex="2"><img src="https://dawangshangshan.github.io/post-images/1696573159969.png" alt="" loading="lazy"></figure>
+<h3 id="总结如果只是单纯改变指针中的内容用一级指针即可而要改变它所指向对象则需要二级指针">总结：如果只是单纯改变指针中的内容，用一级指针即可，而要改变它所指向对象，则需要二级指针。</h3>
+<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[联合体与位段（位域）]]></title>
+        <id>https://dawangshangshan.github.io/post/lian-he-ti-yu-wei-duan-wei-yu/</id>
+        <link href="https://dawangshangshan.github.io/post/lian-he-ti-yu-wei-duan-wei-yu/">
+        </link>
+        <updated>2023-09-24T07:34:05.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="联合体">联合体：</h2>
+<h3 id="定义">定义：</h3>
+<p>在C语言中，变量的定义是分配存储空间的过程。一般的，每个变量都具有其独有的存储空间，那么可不可以在同一个内存空间中存储不同的数据类型（不是同时存储）呢？</p>
+<p>答案是可以的，使用<code>联合体</code>就可以达到这样的目的。<code>联合体也叫共用体</code>，在C语言中定义联合体的关键字是<code>union</code>。</p>
+<h3 id="一般形式为">一般形式为：</h3>
+<pre><code class="language-c">//第一种
+union A
+{
+	int a；
+    double b;
+    char c;
+}；
+union A a
+//第二种  模板和变量一起创建
+union B
+{
+	int a；
+    double b;
+    char c;
+}；
+union B b
+//匿名  无法再创建其他联合体对象，对于此联合体，只有c联合体变量一个对象
+union 
+{
+	int a；
+    double b;
+    char c;
+}c；
+</code></pre>
+<p>整体上来说，联合体的形式与结构体相似。</p>
+<p>但是结构体和共用体的区别在于：结构体的各个成员会占用不同的内存，互相之间没有影响；而共用体的</p>
+<p>所有成员占用同一段内存，修改一个成员会影响其余所有成员。</p>
+<p>我们在联合体中创建了三个变量，但是我们在实际使用过程中我们只会使用其中一个变量，使用多个会造成数据错误。接下来对为什么会造成错误进行具体解释。</p>
+<h3 id="联合体内存">联合体内存：</h3>
+<p>结构体占用的内存大于等于所有成员占用的内存的总和（成员之间可能会存在缝隙），共用体占用的内存等于最长的成员占用的内存。共用体使用了内存覆盖技术，同一时刻只能保存一个成员的值，如果对新的成员赋值，就会把原来成员的值覆盖掉。</p>
+<p>eg(<em><strong>在小端上进行（分为大端和小端），内存分布情况不同会有不同的结果</strong></em>）:</p>
+<pre><code>#include &lt;stdio.h&gt;
+union data{
+    int n;
+    char ch;
+    short m;
+};
+int main(){
+    union data a;
+    printf(&quot;%d, %d\n&quot;, sizeof(a), sizeof(union data) );
+    a.n = 0x40;
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+    a.ch = '9';
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+    a.m = 0x2059;
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+    a.n = 0x3E25AD54;
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+   
+    return 0;
+}
+</code></pre>
+<pre><code class="language-c">//运行结果为：
+4, 4
+40, @, 40
+39, 9, 39
+2059, Y, 2059
+3E25AD54, T, AD54
+</code></pre>
+<p>这段代码不但验证了共用体的长度，还说明共用体成员之间会相互影响，修改一个成员的值会影响其他成员。</p>
+<p>要想理解上面的输出结果，弄清成员之间究竟是如何相互影响的，就得了解各个成员在内存中的分布。以上面的 data 为例，各个成员在内存中的分布如下：</p>
+<figure data-type="image" tabindex="1"><img src="http://c.biancheng.net/uploads/allimg/190118/152553G12-0.jpg" alt="img" loading="lazy"></figure>
+<p>成员 n、ch、m 在内存中“对齐”到一头，对 ch 赋值修改的是前一个字节，对 m 赋值修改的是前两个字节，对 n 赋值修改的是全部字节。也就是说，ch、m 会影响到 n 的一部分数据，而 n 会影响到 ch、m 的全部数据。</p>
+<h3 id="应用场景">应用场景：</h3>
+<p>由于在一个联合体中，改变一个变量的值会导致另一个也改变；所以我们使用联合体的场景是当我们只会用到联合体中的其中唯一一个变量。</p>
+<p>如：</p>
+<p>现有一张关于学生信息和教师信息的表格。学生信息包括姓名、编号、性别、职业、分数，教师的信息包括姓名、编号、性别、职业、教学科目。请看下面的表格：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Num</th>
+<th>Sex</th>
+<th>Profession</th>
+<th>Score / Course</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HanXiaoXiao</td>
+<td>501</td>
+<td>f</td>
+<td>s</td>
+<td>89.5</td>
+</tr>
+<tr>
+<td>YanWeiMin</td>
+<td>1011</td>
+<td>m</td>
+<td>t</td>
+<td>math</td>
+</tr>
+<tr>
+<td>LiuZhenTao</td>
+<td>109</td>
+<td>f</td>
+<td>t</td>
+<td>English</td>
+</tr>
+<tr>
+<td>ZhaoFeiYan</td>
+<td>982</td>
+<td>m</td>
+<td>s</td>
+<td>95.0</td>
+</tr>
+</tbody>
+</table>
+<p>f 和 m 分别表示女性和男性，s 表示学生，t 表示教师。可以看出，学生和教师所包含的数据是不同的。现在要求把这些信息放在同一个表格中，并设计程序输入人员信息然后输出。</p>
+<p>如果把每个人的信息都看作一个结构体变量的话，那么教师和学生的前 4 个成员变量是一样的，第 5 个成员变量可能是 score 或者 course。当第 4 个成员变量的值是 s 的时候，第 5 个成员变量就是 score；当第 4 个成员变量的值是 t 的时候，第 5 个成员变量就是 course。</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#define TOTAL 4  //人员总数
+struct{
+    char name[20];
+    int num;
+    char sex;
+    char profession;
+    union{
+        float score;
+        char course[20];
+    } sc;
+} bodys[TOTAL];
+int main(){
+    int i;
+    //输入人员信息
+    for(i=0; i&lt;TOTAL; i++){
+        printf(&quot;Input info: &quot;);
+        scanf(&quot;%s %d %c %c&quot;, bodys[i].name, &amp;(bodys[i].num), &amp;(bodys[i].sex), &amp;(bodys[i].profession));
+        if(bodys[i].profession == 's'){  //如果是学生
+            scanf(&quot;%f&quot;, &amp;bodys[i].sc.score);
+        }else{  //如果是老师
+            scanf(&quot;%s&quot;, bodys[i].sc.course);
+        }
+        fflush(stdin);
+    }
+    //输出人员信息
+    printf(&quot;\nName\t\tNum\tSex\tProfession\tScore / Course\n&quot;);
+    for(i=0; i&lt;TOTAL; i++){
+        if(bodys[i].profession == 's'){  //如果是学生
+            printf(&quot;%s\t%d\t%c\t%c\t\t%f\n&quot;, bodys[i].name, bodys[i].num, bodys[i].sex, bodys[i].profession, bodys[i].sc.score);
+        }else{  //如果是老师
+            printf(&quot;%s\t%d\t%c\t%c\t\t%s\n&quot;, bodys[i].name, bodys[i].num, bodys[i].sex, bodys[i].profession, bodys[i].sc.course);
+        }
+    }
+    return 0;
+}
+</code></pre>
+<h2 id="位段位域">位段（位域）：</h2>
+<h3 id="说明">说明：</h3>
+<p>有些数据在存储时并不需要占用一个完整的字节，只需要占用一个或几个二进制位即可。例如开关只有通电和断电两种状态，用 0 和 1 表示足以，也就是用一个二进位。正是基于这种考虑，C语言又提供了一种叫做位域的数据结构。</p>
+<h3 id="内存说明">内存说明：</h3>
+<p>在结构体定义时，我们可以指定某个成员变量所占用的二进制位数（Bit），这就是位域。请看下面的例子：</p>
+<pre><code class="language-c">struct bs{
+    unsigned m;
+    unsigned n: 4;
+    unsigned char ch: 6;
+};
+</code></pre>
+<p><code>:</code>后面的数字用来限定成员变量占用的位数。成员 m 没有限制，根据数据类型即可推算出它占用 4 个字节（Byte）的内存。成员 n、ch 被<code>:</code>后面的数字限制，不能再根据数据类型计算长度，它们分别占用 4、6 位（Bit）的内存。</p>
+<p>n、ch 的取值范围非常有限，数据稍微大些就会发生溢出，请看下面的例子：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(){
+    struct bs{
+        unsigned m;
+        unsigned n: 4;
+        unsigned char ch: 6;
+    } a = { 0xad, 0xE, '$'};
+    //第一次输出
+    printf(&quot;%#x, %#x, %c\n&quot;, a.m, a.n, a.ch);
+    //更改值后再次输出
+    a.m = 0xb8901c;
+    a.n = 0x2d;
+    a.ch = 'z';
+    printf(&quot;%#x, %#x, %c\n&quot;, a.m, a.n, a.ch);
+    return 0;
+}
+</code></pre>
+<p>运行结果：<br>
+0xad, 0xe, $<br>
+0xb8901c, 0xd, :</p>
+<p>对于 n 和 ch，第一次输出的数据是完整的，第二次输出的数据是残缺的。</p>
+<p>第一次输出时，n、ch 的值分别是 0xE、0x24（'$' 对应的 ASCII 码为 0x24），换算成二进制是 1110、10 0100，都没有超出限定的位数，能够正常输出。</p>
+<p>第二次输出时，n、ch 的值变为 0x2d、0x7a（'z' 对应的 ASCII 码为 0x7a），换算成二进制分别是 10 1101、111 1010，都超出了限定的位数。超出部分被直接截去，剩下 1101、11 1010，换算成十六进制为 0xd、0x3a（0x3a 对应的字符是 :）。</p>
+<p>C语言标准规定，位域的宽度不能超过它所依附的数据类型的长度。通俗地讲，成员变量都是有类型的，这个类型限制了成员变量的最大长度，<code>:</code>后面的数字不能超过这个长度。</p>
+<p>例如上面的 bs，n 的类型是 unsigned int，长度为 4 个字节，共计 32 位，那么 n 后面的数字就不能超过 32；ch 的类型是 unsigned char，长度为 1 个字节，共计 8 位，那么 ch 后面的数字就不能超过 8。</p>
+<p>我们可以这样认为，位域技术就是在成员变量所占用的内存中选出一部分位宽来存储数据。</p>
+<p>C语言标准还规定，只有有限的几种数据类型可以用于位域。在 ANSI C 中，这几种数据类型是 int、signed int 和 unsigned int（int 默认就是 signed int）。</p>
+<p>但编译器在具体实现时都进行了扩展，额外支持了 char、signed char、unsigned char 以及 enum 类型，所以上面的代码虽然不符合C语言标准，但它依然能够被编译器支持。</p>
+]]></content>
+    </entry>
+</feed>
