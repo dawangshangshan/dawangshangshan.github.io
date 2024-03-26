@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>java小项目——图书管理系统 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="当我们学完了javaSE之后，总感觉有些空虚——学了这些东西能做些什么呢？
+今天给大家介绍一个项目——图书管理系统小项目，一个包含了封装、继承、多态、异常的项目，将自己所学到的知识有运用出来！
+项目大概组成：
+我们将实现一个：管理员可以增加..." />
+    <meta name="keywords" content="大王上山的Bolg" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">java小项目——图书管理系统</h2>
+            <div class="post-date">2023-12-06</div>
+            
+            <div class="post-content" v-pre>
+              <p>当我们学完了javaSE之后，总感觉有些空虚——学了这些东西能做些什么呢？</p>
+<p>今天给大家介绍一个项目——图书管理系统小项目，一个包含了<strong>封装、继承、多态、异常</strong>的项目，将自己所学到的知识有运用出来！</p>
+<h2 id="项目大概组成">项目大概组成：</h2>
+<p>我们将实现一个：管理员可以增加、删除、查找书籍，用户可以查看、借阅、归还书籍</p>
+<p>我们将对每一个大的分类开辟一个包，方便对其进行管理。</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231206153430941.png" alt="image-20231206153430941" loading="lazy"></figure>
+<h2 id="书架包">书架包</h2>
+<p>对于书架这个包，我们将创建两个类：书、书架。</p>
+<h3 id="书">书</h3>
+<p>书是用于描述书这个抽象类，将包含书的名字，作者，价格，类型，是否被借出；</p>
+<p>而对于书我们只实现一些基本都get和set操作，并重写toString方法。</p>
+<pre><code class="language-java">package book;
+
+import java.util.Objects;
+
+public class Book {
+    private String name;
+    private String athour;
+    private int price;
+    private String type;
+    private boolean isBorrowed;
+
+    public Book(String name, String athour, int price, String type) {
+        this.name = name;
+        this.athour = athour;
+        this.price = price;
+        this.type = type;
+        this.isBorrowed = isBorrowed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAthour() {
+        return athour;
+    }
+
+    public void setAthour(String athour) {
+        this.athour = athour;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isBorrowed() {
+        return isBorrowed;
+    }
+
+    public void setBorrown(boolean borrowed) {
+        isBorrowed = borrowed;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Book{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                &quot;, athour='&quot; + athour + '\'' +
+                &quot;, price=&quot; + price +
+                &quot;, type='&quot; + type + '\'' +
+                ((isBorrowed == true) ? &quot; 已经借出&quot; : &quot; 未被借出&quot;) +
+                '}';
+    }
+
+
+
+}
+
+</code></pre>
+<h3 id="书架类">书架类</h3>
+<p>书架类的成员变量也比较简单：书数组和记录书数组内有效书的大小。</p>
+<p>书架类的方法我们只是有简单的set和get方法</p>
+<pre><code class="language-java">package book;
+
+public class BookList {
+    private Book[] books;
+    private int usedSize;
+    public static final int maxSize=10;
+
+    public BookList() {
+        this.books = new Book[maxSize];
+        this.usedSize = 3;
+        this.books[0]=new Book(&quot;三国演义&quot;,&quot;罗贯中&quot;,10,&quot;小说&quot;);
+        this.books[1] = new Book(&quot;西游记&quot;,&quot;吴承恩&quot;,9,&quot;小说&quot;);
+        this.books[2] = new Book(&quot;红楼梦&quot;,&quot;曹雪芹&quot;,19,&quot;小说&quot;);
+    }
+
+    public Book getBooks(int pos) {
+        return books[pos];
+    }
+
+    public void setBooks(Book books,int pos) {
+        this.books[pos] = books;
+    }
+
+    public int getUsedSize() {
+        return usedSize;
+    }
+
+    public void setUsedSize(int usedSize) {
+        this.usedSize = usedSize;
+    }
+}
+
+</code></pre>
+<h2 id="操作包">操作包</h2>
+<p>对于操作包内的类，我们讲使用接口来实现——为什么使用接口？</p>
+<p>因为对于不同的操作，只需要使用同一个接口，我们就行只用一个接口来调用所有操作，这大大减少了我们的代码量和增加阅读便利。</p>
+<h3 id="操作接口">操作接口</h3>
+<pre><code class="language-java">package operation;
+import book.BookList;
+public  interface IOopertation {
+    void work(BookList books);
+
+}
+</code></pre>
+<h3 id="增加书籍类">增加书籍类</h3>
+<p>由于我们要对书籍类的对象进行创建，并将书籍放入书架的操作，所以我们需要导入书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class AddOpertation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;输入书名：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+
+        System.out.println(&quot;请输入作者：&quot;);
+        String author = scanner.nextLine();
+
+        System.out.println(&quot;请输入类型：&quot;);
+        String type = scanner.nextLine();
+
+        System.out.println(&quot;请输入价格：&quot;);
+        int price = scanner.nextInt();
+
+        Book tempbook=new Book(name,author,price,type);
+        //创建书籍对象
+        int currentsize= books.getUsedSize();
+        //查看是否有重复的
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book book1 = books.getBooks(i);
+            if(book1.getName().equals(name)) {
+                System.out.println(&quot;有这本书，不进行存放了！&quot;);
+                return;
+            }
+        }
+        //书架容量是否满了
+        if(books.getUsedSize()==BookList.maxSize){
+            System.out.println(&quot;书架满了&quot;);
+        }else{
+            //未满
+            books.setBooks(tempbook,currentsize);
+            //容量加一
+            books.setUsedSize(currentsize+1);
+        }
+    }
+
+}
+
+</code></pre>
+<h3 id="删除书籍类">删除书籍类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Deleteopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;删除图书！&quot;);
+        System.out.println(&quot;请输入要删除的图书&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        int pos=-1;
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                pos=i;
+                break;
+            }
+            if(i == currentsize) {
+                System.out.println(&quot;没有你要删除的图书！&quot;);
+                return;
+            }
+        }
+        int i=0;
+        //将空出来的位置填充
+        for (i = pos; i &lt; currentsize-1; i++) {
+            Book temp=book.getBooks(i+1);
+            book.setBooks(temp,i);
+        }
+        book.setBooks(null,i);
+
+        book.setUsedSize(currentsize-1);
+    }
+}
+</code></pre>
+<h3 id="借阅书架类">借阅书架类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<p>在此操作中，我们查阅到你想要的书，并将书的是否借阅的值改为true</p>
+<pre><code>package operation;
+
+import book.BookList;
+import book.Book;
+import java.util.Scanner;
+
+public class Borrowoperation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;请输入要借阅的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= books.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=books.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                if(tempbook.isBorrowed()==false){
+                    System.out.println(&quot;借阅成功！&quot;);
+                    tempbook.setBorrown(true);
+                    return;
+                }
+                else {
+                    System.out.println(&quot;已经被借阅！&quot;);
+                }
+            }
+        }
+        System.out.println(&quot;没有此书！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="退出类">退出类</h3>
+<pre><code class="language-java">package operation;
+
+import book.BookList;
+
+public class Exitopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;退出系统&quot;);
+        System.exit(0);
+    }
+}
+</code></pre>
+<h3 id="查找书籍类">查找书籍类</h3>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Findopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;请输入你所查询的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                System.out.println(&quot;找到你所查询的书籍了：&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;书库中没有此书籍！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="归还书籍类">归还书籍类</h3>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class ReturnOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;归还图书！&quot;);
+        Scanner scanner=new Scanner(System.in);
+        System.out.println(&quot;输入要归还的书籍：&quot;);
+        String name=scanner.nextLine();
+        for (int i = 0; i &lt; book.getUsedSize(); i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                tempbook.setBorrown(false);
+                System.out.println(&quot;归还成功&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;你归还的图书 不存在！！ &quot;);
+    }
+}
+
+</code></pre>
+<p>打印全部书籍类</p>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+import com.sun.javaws.IconUtil;
+
+public class ShowOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;打印图书:&quot;);
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            System.out.println(tempbook);
+        }
+    }
+}
+
+</code></pre>
+<h2 id="用户包">用户包</h2>
+<p>对于用户包，我们在包下会创建两个类：普通用户，管理员，但是我们在实现时，发现，两个类有很多相似的地方，于是就用一个名为的user的父类，来包含他们之间的共同之处。</p>
+<h3 id="user父类">user父类</h3>
+<p>我们作为使用人员，可以进行不同的操作，所以我们使用了一个接口数组，来实现我们不同的操作</p>
+<p>对于用户来说，都有点一个菜单栏</p>
+<pre><code class="language-java">package user;
+import operation.IOopertation;
+import book.BookList;
+public abstract class user {
+    protected String name;
+    protected IOopertation[] ioopertation;
+    public user(String name) {
+        this.name = name;
+    }
+
+    public abstract int menu();
+
+
+    public void doOperation(int choice, BookList bookList) {
+        ioopertation[choice].work(bookList);
+    }
+}
+</code></pre>
+<h3 id="adminuser">adminUser</h3>
+<p>对于管理人员来说，可以使用的操作为：增删查改，和打印全部书籍</p>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="normaluser">normalUser</h3>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="管理员登陆异常">管理员登陆异常</h3>
+<p>密码异常</p>
+<pre><code class="language-java">package user;
+
+public class PasswardException extends RuntimeException{
+    public PasswardException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<p>用户名异常</p>
+<pre><code class="language-java">package user;
+
+public class UsernameException extends RuntimeException{
+    public UsernameException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<h2 id="登陆">登陆</h2>
+<pre><code class="language-java">import book.BookList;
+import user.*;
+import java.util.Scanner;
+
+
+public class Login {
+    private static final String userName=&quot;admin&quot;;
+    private static final String passward=&quot;123456&quot;;
+    //返回不同的用户类
+    public static user login(){
+        System.out.println(&quot;请输入你的身份，1：管理员  2：普通用户-》&quot;);
+        Scanner in=new Scanner(System.in);
+        int choice=in.nextInt();
+        if(choice==1){
+            System.out.println(&quot;请输入管理员姓名：&quot;);
+           	in = new Scanner(System.in);
+            String name=in.nextLine();
+            //抛出异常
+            if(!name.equals(Login.userName)) {
+                throw new UsernameException(&quot;管理员名字输入错误&quot;);
+            }
+            System.out.println(&quot;请输入管理员密码&quot;);
+            String passwords=in.nextLine();
+            //抛出异常
+            if(!passwords.equals(Login.passward)){
+                throw new PasswardException(&quot;管理员密码错误&quot;);
+            }
+            return new adminUser(name);
+        }
+        else{
+            System.out.println(&quot;请输入你的姓名：&quot;);
+            String name=in.nextLine();
+
+            return new normalUser(name);
+        }
+
+
+    }
+    public static void main(String[] args) {
+        //创建书架
+        BookList bookList = new BookList();
+        //可能有异常
+        try {
+            //对用户类型进行选择，用父类对象接受子类对象，向上转型
+            user huser=login();
+            //不停的执行操作，知道选择退出
+            while(true){
+                int choice= huser.menu();
+                huser.doOperation(choice,bookList);
+            }
+        }catch (UsernameException x){
+            x.printStackTrace();
+        }catch (PasswardException x){
+            x.printStackTrace();
+        }
+
+
+    }
+}
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>在这个小项目中，我们运用了包对类进行管理，运用接口来实现调用的简化——调用接口就可以调用使用了接口的类，运用了继承来实现了多态，减少了代码量，提高了代码可读性。</p>
+<!-- more -->
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/9UraHvIah/" class="tag">
+                    大王上山的Bolg
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/2023-nian-10-yue-yue-bao/">
+                  <h3 class="post-title">
+                    2023年10月月报
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>memcpy和memmove库函数详解 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="memcpy:
+头文件：&lt;string.h&gt;
+声明：
+void *memcpy(void *dest, const void *source, size_t num)
+
+
+dest -- 指向用于存储复制内容的目标数组，类型强制..." />
+    <meta name="keywords" content="大王上山的Bolg,c,C库函数" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">memcpy和memmove库函数详解</h2>
+            <div class="post-date">2023-09-21</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/memcpy-he-memmove-ku-han-shu-xiang-jie.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="memcpy">memcpy:</h2>
+<h3 id="头文件stringh">头文件：&lt;string.h&gt;</h3>
+<h3 id="声明">声明：</h3>
+<pre><code class="language-c">void *memcpy(void *dest, const void *source, size_t num)
+</code></pre>
+<ul>
+<li><strong>dest</strong> -- 指向用于存储复制内容的目标数组，类型强制转换为 void* 指针。</li>
+<li><strong>source</strong> -- 指向要复制的数据源，类型强制转换为 void* 指针。</li>
+<li><strong>n</strong>um -- 要被复制的字节数。</li>
+<li>该函数返回一个指向目标存储区 str1 的指针。</li>
+</ul>
+<h3 id="使用方法">使用方法：</h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+int main()
+{
+	int arr[10] = { 1,2,3,4,5,6,7,8,9,10};
+	int arr1[3] = { 9,9,9 };
+	memcpy(arr, arr1, 12);//将arr1的三个9覆盖到arr的1 2 3这给位置
+	for (int i = 0; i &lt; 10; i++)
+	{
+		printf(&quot;%d &quot;, arr[i]);
+	}
+}
+</code></pre>
+<pre><code class="language-c">//结果是：9 9 9 4 5 6 7 8 9 10
+</code></pre>
+<h2 id="模拟实现">模拟实现：</h2>
+<pre><code class="language-c">void* my_memcpy(void* dest, const void* source, size_t num)
+{
+	void* ret = dest;
+	while (num--)
+	{
+		*(char*)dest = *(char*)source;
+		//(char *) 的优先级小于++，所以(char *)dest++ 是错误的，dest是void*类型，无法对它++，必须先将它转换为具体类型才行
+		((char*)dest)++;
+		((char*)source)++;
+	}
+	return ret;
+}
+</code></pre>
+<p>但是我们用memcpy函数想要实现下面代码时，<strong>在大多数编译器上是不行的</strong>：</p>
+<pre><code class="language-c">memcpy(arr, arr+2, 12);
+</code></pre>
+<p>我们所预计的：3 4 5 4 5 6 7 8 9 10 但事实是：1 2 1 2 1 6 7 8 9 10.</p>
+<p>这是由于函数在拷贝的时候将1 2拷贝过去时，将3，4覆盖住了，所以无法实现该操作。</p>
+<p><strong>而对memcpy来说，memmove就是它的升级版</strong>，能够实现以上的操作。接下来我们就介绍memmove函数。</p>
+<h2 id="memmvoe">memmvoe</h2>
+<h3 id="描述">描述：</h3>
+<h3 id="c-库函数-void-memmovevoid-dest-const-void-source-size_t-num-从-str2-复制-n-个字符到-str1但是在重叠内存块这方面memmove-是比-memcpy-更安全的方法-如果目标区域和源区域有重叠的话memmove-能够保证源串在被覆盖之前将重叠区域的字节拷贝到目标区域中复制后源区域的内容会被更改-如果目标区域与源区域没有重叠则和-memcpy-函数功能相同">C 库函数 <strong>void *memmove(void *dest, const void *source, size_t num)</strong> 从 <strong>str2</strong> 复制 <strong>n</strong> 个字符到 <strong>str1</strong>，但是在重叠内存块这方面，memmove() 是比 memcpy() 更安全的方法。如果目标区域和源区域有重叠的话，memmove() 能够保证源串在被覆盖之前将重叠区域的字节拷贝到目标区域中，复制后源区域的内容会被更改。如果目标区域与源区域没有重叠，则和 memcpy() 函数功能相同。</h3>
+<h2 id="声明-2">声明</h2>
+<pre><code class="language-c">void *memmove(void *str1, const void *str2, size_t n)
+</code></pre>
+<ul>
+<li><strong>dest</strong> -- 指向用于存储复制内容的目标数组，类型强制转换为 void* 指针。</li>
+<li><strong>source</strong> -- 指向要复制的数据源，类型强制转换为 void* 指针。</li>
+<li><strong>n</strong>um -- 要被复制的字节数。</li>
+<li>该函数返回一个指向目标存储区 dest的指针。</li>
+</ul>
+<h3 id="使用方法-2">使用方法：</h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+int main()
+{
+	int arr[10] = { 1,2,3,4,5,6,7,8,9,10};
+	my_memmove(arr, arr+2, 12);
+	for (int i = 0; i &lt; 10; i++)
+	{
+		printf(&quot;%d &quot;, arr[i]);
+	}
+}
+</code></pre>
+<pre><code class="language-c">//结果是  3 4 5 4 5 6 7 8 9 10
+</code></pre>
+<h3 id="模拟实现-2">模拟实现：</h3>
+<pre><code>void* my_memmove(void* dest, const void* source, size_t num)
+{
+	void* ret = dest;
+	//当目标空间在需要复制空间的后面，从后往前拷贝
+	if (dest &gt; source)
+	{
+		while (num--)
+		{
+			*((char*)dest+num) = *((char*)source+num);
+		}
+	}
+	else {
+		while (num--)
+		{
+			*(char*)dest = *(char*)source;
+			//(char *) 的优先级小于++，所以(char *)dest++ 是错误的，dest是void*类型，无法对它++，必须先将它转换为具体类型才行
+			((char*)dest)++;
+			((char*)source)++;
+		}
+	}
+	return ret;
+}
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/9UraHvIah/" class="tag">
+                    大王上山的Bolg
+                  </a>
+                
+                  <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh/" class="tag">
+                    c
+                  </a>
+                
+                  <a href="https://dawangshangshan.github.io/tag/pTTHPNvUU/" class="tag">
+                    C库函数
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/guan-yu-zhi-zhen-de-yi-xie-xi-jie-nei-rong/">
+                  <h3 class="post-title">
+                    关于指针的一些细节内容
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

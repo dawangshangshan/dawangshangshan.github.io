@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>HTML基础知识（一） | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="HTML是什么？
+HTML 不是一门编程语言，而是一种用于定义内容结构的标记语言。HTML 由一系列的元素组成，这些元素可以用来包围不同部分的内容，使其以某种方式呈现或者工作。一对标签可以为一段文字或者一张图片添加超链接，将文字设置为斜体，..." />
+    <meta name="keywords" content="HTML" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">HTML基础知识（一）</h2>
+            <div class="post-date">2023-09-16</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/html-ji-chu-zhi-shi-yi.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="html是什么">HTML是什么？</h2>
+<h3 id="html-不是一门编程语言而是一种用于定义内容结构的标记语言-html-由一系列的元素组成这些元素可以用来包围不同部分的内容使其以某种方式呈现或者工作-一对标签可以为一段文字或者一张图片添加超链接将文字设置为斜体改变字号等等">HTML 不是一门编程语言，而是一种用于定义内容结构的<em>标记语言</em>。HTML 由一系列的元素组成，这些元素可以用来包围不同部分的内容，使其以某种方式呈现或者工作。一对标签可以为一段文字或者一张图片添加超链接，将文字设置为斜体，改变字号，等等。</h3>
+<h3 id="如">如：</h3>
+<pre><code>my cat is cute
+</code></pre>
+<p>我们可以将这段语句封装成一个段落元素来使其在单独一行呈现：</p>
+<pre><code class="language-html">&lt;p&gt;My cat is very grumpy&lt;/p&gt;
+</code></pre>
+<h2 id="html元素详解">HTML元素详解：</h2>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/img_convert/6165191bbe67d0e546f4111548e744f1.png" alt="HTML 元素" loading="lazy"></figure>
+<p>这个元素的主要部分有：</p>
+<ol>
+<li><strong>开始标签</strong>（Opening tag）：包含元素的名称（本例为 p），被大于号、小于号所包围。表示元素从这里开始或者开始起作用 —— 在本例中即段落由此开始。</li>
+<li><strong>结束标签</strong>（Closing tag）：与开始标签相似，只是其在元素名之前包含了一个斜杠。这表示着元素的结尾 —— 在本例中即段落在此结束。初学者常常会犯忘记包含结束标签的错误，这可能会产生一些奇怪的结果。</li>
+<li><strong>内容</strong>（Content）：元素的内容，本例中就是所输入的文本本身。</li>
+<li><strong>元素</strong>（Element）：开始标签、结束标签与内容相结合，便是一个完整的元素。</li>
+</ol>
+<p>元素也可以有<strong>属性（Attribute）</strong>：</p>
+<figure data-type="image" tabindex="2"><img src="https://img-blog.csdnimg.cn/img_convert/3832852c7e4b8b3027597607e74c780c.png" alt="HTML 属性" loading="lazy"></figure>
+<p>属性包含了关于元素的一些额外信息，这些信息本身不应显现在内容中。本例中，<code>class</code> 是属性名称，<code>editor-note</code> 是属性的值。<code>class</code> 属性可为元素提供一个标识名称，以便进一步为元素指定样式或进行其他操作时使用。</p>
+<p>属性应该包含：</p>
+<ol>
+<li>在属性与元素名称（或上一个属性，如果有超过一个属性的话）之间的空格符。</li>
+<li>属性的名称，并接上一个等号。</li>
+<li>由引号所包围的属性值。</li>
+</ol>
+<p>这里推荐一个网站：可以查看各种不同功能的元素，和它的属性<a href="https://developer.mozilla.org/zh-CN/docs/Web">Web 开发技术 | MDN (mozilla.org)</a>。</p>
+<h2 id="嵌套元素">嵌套元素:</h2>
+<p>也可以将一个元素置于其他元素之中 —— 称作<strong>嵌套</strong>。要表明猫咪非常暴躁，可以将“very”用 <strong>元素包围，爆字将突出显示：</p>
+<pre><code class="language-html">&lt;p&gt;My cat is &lt;strong&gt;very&lt;/strong&gt; grumpy.&lt;/p&gt;
+</code></pre>
+<p>元素必须正确地开始和结束，才能清楚地显示出正确的嵌套层次。否则浏览器就得自己猜测，虽然它会竭尽全力，但很大程度不会给你期望的结果。所以一定要避免！</p>
+<h2 id="html-文档详解">HTML 文档详解</h2>
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;html lang=&quot;en-US&quot;&gt;
+  &lt;head&gt;
+    &lt;meta charset=&quot;utf-8&quot; /&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot; /&gt;
+    &lt;title&gt;My test page&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;img src=&quot;images/firefox-icon.png&quot; alt=&quot;My test image&quot; /&gt;
+  &lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<ul>
+<li><code>&lt;!DOCTYPE html&gt;</code>——文档类型(这是html5的声明)。这是必不可少的开头。混沌初分，HTML 尚在襁褓（大约是 1991/92 年）之时，这个元素用来关联 HTML 编写规范，以供自动查错等功能所用。而在当今，它作用有限，可以说仅用于保证文档正常读取。现在知道这些就足够了。</li>
+<li><code>&lt;html&gt;&lt;/html&gt;</code>——<code>&lt;html&gt;</code> 元素。该元素包含整个页面的所有内容，有时候也称作根元素。里面也包含了 <code>lang</code> 属性，写明了页面的主要语种。</li>
+<li><code>&lt;head&gt;&lt;/head&gt;</code>——<code>&lt;head&gt;</code>元素。所有那些你加到页面中，且<em>不</em>向看客展示的页面成员，都以这个元素为容器。其中包含诸如提供给搜索引擎的关键字和页面描述、用作风格化页面的 CSS、字符集声明等等。</li>
+<li><code>&lt;meta charset=&quot;utf-8&quot;&gt;</code>——该元素指明你的文档使用 UTF-8 字符编码，UTF-8 包括世界绝大多数书写语言的字符。它基本上可以处理任何文本内容。以它为编码还可以避免以后出现某些问题，没有理由再选用其他编码。</li>
+<li><code>&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;</code>——视口元素可以确保页面以视口宽度进行渲染，避免移动端浏览器上因页面过宽导致缩放。</li>
+<li><code>&lt;title&gt;&lt;/title&gt;</code>—— <code>&lt;title&gt;</code>元素，该元素设置页面的标题，显示在浏览器标签页上，也作为收藏网页的描述文字。</li>
+<li><code>&lt;body&gt;&lt;/body&gt;</code>——<code>&lt;body&gt;</code> 元素。该元素包含期望让用户在访问页面时看到的<em>全部</em>内容，包括文本、图像、视频、游戏、可播放的音轨或其他内容。</li>
+</ul>
+<h2 id="注释">注释</h2>
+<p>对一些操作进行介绍后，注释其文本内容可以让文体不在浏览器上出现</p>
+<pre><code class="language-html">&lt;!--  text--&gt; 
+</code></pre>
+<p>快捷键：<strong>ctrl+/</strong>。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/HTML/" class="tag">
+                    HTML
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/jie-gou-ti-ni-bu-de-bu-zhi-dao-de-zhi-shi/">
+                  <h3 class="post-title">
+                    # 结构体你不得不知道的知识！
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

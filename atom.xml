@@ -1,0 +1,2263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://dawangshangshan.github.io</id>
+    <title>大王上山的Bolg</title>
+    <updated>2024-03-26T13:50:30.837Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://dawangshangshan.github.io"/>
+    <link rel="self" href="https://dawangshangshan.github.io/atom.xml"/>
+    <subtitle>大王上山的博客</subtitle>
+    <logo>https://dawangshangshan.github.io/images/avatar.png</logo>
+    <icon>https://dawangshangshan.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2024, 大王上山的Bolg</rights>
+    <entry>
+        <title type="html"><![CDATA[Mysql——索引]]></title>
+        <id>https://dawangshangshan.github.io/post/mysql-suo-yin/</id>
+        <link href="https://dawangshangshan.github.io/post/mysql-suo-yin/">
+        </link>
+        <updated>2024-03-26T13:50:02.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="什么是索引">什么是索引？</h2>
+<p>当你去图书馆借书时，你是选择一个书架一个书架的寻找，还是根据图书馆提供的书籍目录来找呢？</p>
+<p>那肯定是选择目录来寻找，目录查找的时间比粗暴的寻找不知快多少。</p>
+<p>而目录就是充当索引的角色。</p>
+<p>那换到数据库中，索引的定义就是帮助存储引擎快速获取数据的一种数据结构，形象的说就是<strong>索引是数据的目录</strong>。</p>
+<h2 id="索引的数据结构btree">索引的数据结构——B+Tree</h2>
+<p>在本文中我们仅仅只谈论<code>MySQL</code>中最为常用也是面试中爱被提问的索引——<code>B+Tree</code>。</p>
+<p>索引能够帮助储存引擎快速的获取目标，而为了在大量的数据中能够快速的寻找到我们指定的数据，<code>Mysql</code>采用了<code>B+树</code>。</p>
+<h3 id="为什么使用btree呢">为什么使用B+Tree呢？</h3>
+<p>由于<code>B+Tree</code>特殊的数据结构，<code>B+Tree</code> 存储千万级的数据只需要 3-4 层高度就可以满足，这意味着从千万级的表查询目标数据最多需要 3-4 次磁盘 I/O。</p>
+<p>而这是其他结构无法达到的优势。（虽然<code>Hash</code>能够进行<code>O（1）</code>能查询，但<code>Hash</code>无法进行范围筛选，后续会讲到）。</p>
+<h3 id="btree的结构">B+Tree的结构</h3>
+<p>B+Tree是是一种多叉树，叶子节点才存放数据，非叶子节点只存放索引，而且每个节点里的数据是<strong>按主键顺序存放</strong>的。每一层父节点的索引值都会出现在下层子节点的索引值中，因此在叶子节点中，包括了所有的索引值信息，并且每一个叶子节点都有两个指针，分别指向下一个叶子节点和上一个叶子节点，形成一个双向链表。</p>
+<figure data-type="image" tabindex="1"><img src="https://cdn.xiaolincoding.com//mysql/other/dd076212a7637b9032c97a615c39dcd7.png" alt="图片" loading="lazy"></figure>
+<h3 id="不同的索引">不同的索引</h3>
+<ul>
+<li><strong>聚簇索引（主键索引）</strong>
+<ul>
+<li>主键索引的 B+Tree 的叶子节点存放的是实际数据，所有完整的用户记录都存放在主键索引的 B+Tree 的叶子节点里；</li>
+</ul>
+</li>
+<li><strong>二级索引（辅助索引）</strong>
+<ul>
+<li>二级索引的 B+Tree 的叶子节点存放的是主键值，而不是实际数据。</li>
+</ul>
+</li>
+</ul>
+<p>在创建表时，MySQL存储引擎会根据不同的场景选择不同的列作为索引：</p>
+<ul>
+<li>如果有主键，默认会使用主键作为聚簇索引的索引键（key）；</li>
+<li>如果没有主键，就选择第一个不包含 NULL 值的唯一列作为聚簇索引的索引键（key）；</li>
+<li>在上面两个都没有的情况下，Mysql将自动生成一个隐式自增 id 列作为聚簇索引的索引键（key）；</li>
+</ul>
+<p>其它索引都属于辅助索引（Secondary Index），也被称为二级索引或非聚簇索引。</p>
+<h3 id="回表">回表</h3>
+<p>当去利用二级索引查询数据试，会先检二级索引中的 <code>B+Tree</code> 的索引值，找到对应的叶子节点，获取主键值，然后再通过主键索引去查询对应的叶子节点，然后获取整行的数据。<strong>这个过程就是回表，需要查询一个二级索引和主键索引</strong>。</p>
+<p>不过，当查询的数据是能在二级索引的 B+Tree 的叶子节点里查询到，这时就不用再查主键索引查。</p>
+<h2 id="索引的缺点">索引的缺点</h2>
+<p>确点:</p>
+<ul>
+<li>占用物理空间，数据越大，占用越大</li>
+<li>创建和维护索引需要耗费时间，数据量越大，占用时间越多</li>
+<li>表的删除会引起索引的动态维护，这会导致表的删除效率降低</li>
+</ul>
+<h3 id="什么时候需要创建索引">什么时候需要创建索引</h3>
+<p>索引的优缺点都很明显，在有的场景下优点会被充分发挥出来，而有的场景确不能适配索引，所以要在上面情况下使用索引呢？</p>
+<h4 id="什么时候适用索引">什么时候适用索引？</h4>
+<ul>
+<li>字段有唯一性限制的，比如商品编码；</li>
+<li>经常用于 <code>WHERE</code> 查询条件的字段，这样能够提高整个表的查询速度，如果查询条件不是一个字段，可以建立联合索引。</li>
+<li>经常用于 <code>GROUP BY</code> 和 <code>ORDER BY</code> 的字段，这样在查询的时候就不需要再去做一次排序了，因为我们都已经知道了建立索引之后在 B+Tree 中的记录都是排序好的。</li>
+</ul>
+<h4 id=""><a href="https://xiaolincoding.com/mysql/index/index_interview.html#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%B8%8D%E9%9C%80%E8%A6%81%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95">#</a>什么时候不需要创建索引？</h4>
+<ul>
+<li><code>WHERE</code> 条件，<code>GROUP BY</code>，<code>ORDER BY</code> 里用不到的字段，索引的价值是快速定位，如果起不到定位的字段通常是不需要创建索引的，因为索引是会占用物理空间的。</li>
+<li>字段中存在大量重复数据，不需要创建索引，比如性别字段，只有男女，如果数据库表中，男女的记录分布均匀，那么无论搜索哪个值都可能得到一半的数据。在这些情况下，还不如不要索引，因为 MySQL 还有一个查询优化器，查询优化器发现某个值出现在表的数据行中的百分比很高的时候，它一般会忽略索引，进行全表扫描。</li>
+<li>表数据太少的时候，不需要创建索引；</li>
+<li>经常更新的字段不用创建索引，比如不要对电商项目的用户余额建立索引，因为索引字段频繁修改，由于要维护 B+Tree的有序性，那么就需要频繁的重建索引，这个过程是会影响数据库性能的。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>在本章中，我们了解了mysql中最常用的索引——B+Tree，认识了它的逻辑结构，和它的有缺</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[贪心：分发糖果]]></title>
+        <id>https://dawangshangshan.github.io/post/tan-xin-fen-fa-tang-guo/</id>
+        <link href="https://dawangshangshan.github.io/post/tan-xin-fen-fa-tang-guo/">
+        </link>
+        <updated>2024-03-19T04:50:55.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="贪心分发糖果">贪心：分发糖果</h1>
+<h2 id="题目">题目</h2>
+<p><code>n</code> 个孩子站成一排。给你一个整数数组 <code>ratings</code> 表示每个孩子的评分。</p>
+<p>你需要按照以下要求，给这些孩子分发糖果：</p>
+<ul>
+<li>每个孩子至少分配到 <code>1</code> 个糖果。</li>
+<li>相邻两个孩子评分更高的孩子会获得更多的糖果。</li>
+</ul>
+<p>请你给每个孩子分发糖果，计算并返回需要准备的 <strong>最少糖果数目</strong> 。</p>
+<h2 id="示例-1"><strong>示例 1：</strong></h2>
+<pre><code>输入：ratings = [1,0,2]
+输出：5
+解释：你可以分别给第一个、第二个、第三个孩子分发 2、1、2 颗糖果。
+</code></pre>
+<p><strong>示例 2：</strong></p>
+<pre><code>输入：ratings = [1,2,2]
+输出：4
+解释：你可以分别给第一个、第二个、第三个孩子分发 1、2、1 颗糖果。
+     第三个孩子只得到 1 颗糖果，这满足题面中的两个条件。
+</code></pre>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>n == ratings.length</code></li>
+<li><code>1 &lt;= n &lt;= 2 * 104</code></li>
+<li><code>0 &lt;= ratings[i] &lt;= 2 * 104</code></li>
+</ul>
+<h2 id="题解">题解</h2>
+<p>当一拿到此题，我们第一个想法就是，一次遍历，并且同时兼顾两边来作出此题，当时当我们尝试过后，就会发现并不可行。</p>
+<p>那为什么这样的方法不行呢？<br>
+因为当我们只从一边去我们很难兼顾两边，<strong>必然会导致顾此失彼</strong>。<br>
+我们只从一边出发并且要兼顾两边时，面对以下情况会就会出现难以得到正确答案：<br>
+<code>ratings：[29,51,87,87,72,12]</code><br>
+从左边出发：<br>
+如果我们去判断第二个孩子的糖果数量时，它要大于<br>
+第一个，小于第三个，此时第三的孩子的糖果数量都是未知的，我们很难去判断。<br>
+从右边出发也同理。<br>
+于是我们就提出猜想：是否我们一次处理一边会更好？<br>
+我们作出以下操作:</p>
+<h3 id="从左边出发并只处理左边的情况">从左边出发并只处理左边的情况：</h3>
+<p>将最左边的糖果数量设为1；</p>
+<p><code>ratings:   [29, 51, 87, 87, 72, 12]</code></p>
+<p><code>candysleft: [1,  2, 3,  1,  1,   1]</code></p>
+<h4 id="解释">解释：</h4>
+<p>第一次比较：51&gt;29，所以51的糖果比29的多一个；<br>
+第二次比较：87&gt;51，所以87的糖果比51的多一个；<br>
+第三次比较：87=87，所以第二个87的糖果为1；<br>
+第四次比较：72&lt;82，所以72的糖果为1；<br>
+第五次比较：12&lt;72，所以12的糖果为1；</p>
+<h4 id="代码实现">代码实现：</h4>
+<pre><code class="language-java">for(int i=1;i&lt;ratingsLength;i++){
+    //当比左边大时，糖果数量为左边的数量加一，否则为1
+    candysleft[i]=ratings[i]&gt;ratings[i-1]?candysleft[i-1]+1:1;
+}
+</code></pre>
+<h3 id="从右边出发并只处理右边的情况">从右边出发并只处理右边的情况：</h3>
+<p>将最右边的糖果数量设为1；</p>
+<p><code>下标  ：    [ 0， 1， 2，  3， 4，  5]</code></p>
+<p><code>ratings：   [29, 51, 87, 87, 72,  12]</code></p>
+<p><code>candyright: [ 1,  1,  1, 3 ,  2 , 1 ]</code></p>
+<p>解释：</p>
+<p>第一次比较：72&gt;12，72的糖果比12的多一个；</p>
+<p>第二次比较：87&gt;72，87的糖果比72得多一个；</p>
+<p>第三次比较：87=87，最左边的87的糖果为1；</p>
+<p>第四次比较：51&lt;87，51的糖果为1；</p>
+<p>第四次比较：29&lt;51，29的糖果为1；</p>
+<pre><code class="language-java">for(int i=ratingsLength-2;i&gt;=0;i--){
+    //当比右边大时，糖果数量为右边的数量加一，否则为1
+    candysright[i]=(ratings[i]&gt;ratings[i+1])?candysright[i+1]+1:1;
+}
+</code></pre>
+<h3 id="将两次都结果合并">将两次都结果合并</h3>
+<p><code>下标  ：    [ 0，1，2， 3， 4，  5]</code></p>
+<p><code>ratings：  [29,51, 87,87, 72, 12]</code></p>
+<p><code>candysleft: [1, 2, 3, 1 , 1,  1]</code></p>
+<p><code>candyright: [1, 1, 1, 3 , 2 , 1]</code></p>
+<p>最终结果（将结果存储到candysleft中）：<code>candysleft： [1，2，3，3，2，1]</code></p>
+<p>我们合并时，只需要将同下标，最大的一个作为结果就能得到结果；</p>
+<p>那么为什么要最大的那个糖果数量呢？</p>
+<p>这是因为我们的两个结果都是只对比了一边的结果，同一下标的最大糖果数，代表着是最合理的数量</p>
+<p>例如：下标为4的糖果数量，<code>candysleft[4] = 1</code>,<code>candysright[4] = 3</code>,</p>
+<p>一个是考虑了左边的结果，一个是考虑了右边的结果，</p>
+<p>大的结果，明显符合结果：[87 ，72  ，12 ]，72要小与87，同时要大于12;</p>
+<p>而小的结果不符合题目要求,72是1，但是72&gt;12,明显与要求冲突。</p>
+<h2 id="代码实现-2">代码实现</h2>
+<pre><code class="language-java">public int candy(int[] ratings) {
+        int ratingsLength=ratings.length;
+        //对比左边分数所分发的糖果
+        int[] candysleft=new int[ratingsLength];
+        //对比右边的分数所分发的糖果
+        int[] candysright=new int[ratingsLength];
+        //将第一个设置为1，因为第一个没有左边
+        candysleft[0]=1;
+        //将最后一个设置为1，因为最后一个没有右边
+        candysright[ratingsLength-1]=1;
+        //记录最少糖果数量
+        int count=0;
+        for(int i=1;i&lt;ratingsLength;i++){
+            //当比左边大时，糖果数量为左边的数量加一，否则为1
+            candysleft[i]=ratings[i]&gt;ratings[i-1]?candysleft[i-1]+1:1;
+        }
+
+        for(int i=ratingsLength-2;i&gt;=0;i--){
+            //当比右边大时，糖果数量为右边的数量加一，否则为1
+            candysright[i]=(ratings[i]&gt;ratings[i+1])?candysright[i+1]+1:1;
+        }
+        //当拥有了左右两边都糖果分发数量后，我们就可以就出所需的糖果
+        for(int i=0;i&lt;ratingsLength;i++){
+            //将candys1作为结果数组，两个糖果数组比较，取大的数量
+            candysleft[i]=candysleft[i]&gt;candysright[i]?candysleft[i]:candysright[i];
+            count+=candys1[i];
+        }
+        return count;
+    }
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Mysql语法基础（CRUD）]]></title>
+        <id>https://dawangshangshan.github.io/post/mysql-yu-fa-ji-chu-crud/</id>
+        <link href="https://dawangshangshan.github.io/post/mysql-yu-fa-ji-chu-crud/">
+        </link>
+        <updated>2024-03-17T07:55:00.000Z</updated>
+        <content type="html"><![CDATA[<p>我们创建一个学生表，包含（id，name，score）；</p>
+<h2 id="新增数据create">新增数据（create）</h2>
+<pre><code class="language-sql">insert into table_name values (value1),(value2)...;
+</code></pre>
+<ul>
+<li><code>insert into</code> : 关键字</li>
+<li><code>table_name</code>：需要插入的表的名字</li>
+<li><code>values</code> : 后面跟所需要插入不同数量的数据，每一个括号就代表的时插入表的一行数据，其中的数据需要对应表的数据类型</li>
+</ul>
+<h2 id="查询数据retrieve">查询数据（Retrieve）</h2>
+<h3 id="全列查询">全列查询</h3>
+<pre><code class="language-sql">select * from table_name;
+</code></pre>
+<ul>
+<li><code>select</code> :查询的关键字</li>
+<li><code>*</code>：通识符，表示当前表的所有的列</li>
+<li><code>from</code> ：表示从什么表查询</li>
+</ul>
+<p>查询结果是一个二维表，包含了列名和每一行的数据</p>
+<p>同时select也可以不带from</p>
+<p>这种用法常用于判断当前数据库是否链接有效</p>
+<pre><code class="language-sql">select 1;
+</code></pre>
+<h3 id="投影查询指定列查询">投影查询（指定列查询）</h3>
+<p>在某系情况下，我们不需要将所有的列显示，只需要指定的列展示就ky，此时就可以指定列名，来选择显示</p>
+<pre><code class="language-sql">select id,name from student;
+</code></pre>
+<p>而且我们还可以给没一列起一个别名，这样结果集的列名就与原表名不同。</p>
+<pre><code class="language-sql">select id,name as studnetName from student;
+</code></pre>
+<p>当一这个此sql语句运行后，name将变成studentName</p>
+<p><strong>其中as可以省略</strong>。</p>
+<h3 id="条件查询">条件查询</h3>
+<p>我们很多时候并不希望查询所有的数据，而是希望查询一些满足特定条件的数据，例如，查询分数在80及以上的学生数据。当获取几百万的数据记录，十分耗时，而查询满足条件的数据量将会降低很多。</p>
+<pre><code class="language-sql">select * from student where score&gt;=80;
+</code></pre>
+<p><code>where</code>条件来设定查询条件，查询结果都是满足查询条件的。</p>
+<p>条件表达式可以用<code>&lt;条件1&gt; AND &lt;条件2&gt;</code>表达满足条件1并且满足条件2</p>
+<p>例如我们要查询分数大于80的，且还叫“王二”的同学</p>
+<ul>
+<li>条件一：<code>score&gt;=80</code>;</li>
+<li>条件二：<code>name=“王二”</code>；</li>
+</ul>
+<pre><code class="language-sql">select * from student where score&gt;=80 and name=&quot;王二&quot;;
+</code></pre>
+<p>第二种条件是<code>&lt;条件1&gt; OR &lt;条件2&gt;</code>，表示满足条件1或者满足条件2。</p>
+<p>例如我们要查询大于等于80分或者叫“王二”的同学</p>
+<pre><code class="language-sql">select * from student where score&gt;=80 or name=&quot;王二&quot;;
+</code></pre>
+<p>第三种条件是<code>NOT &lt;条件&gt;</code>，表示“不符合该条件”的记录。</p>
+<p>例如我们查询不是“王二”的同学</p>
+<pre><code class="language-sql">select * from student where not name=&quot;王二&quot;;
+</code></pre>
+<p>如果不加括号，条件运算按照<code>NOT、AND、OR</code>的优先级进行，即<code>NOT</code>优先级最高，其次是<code>AND</code>，最后是<code>OR</code>。加上括号可以改变优先级。</p>
+<h3 id="范围查询">范围查询</h3>
+<p>1.BETWEEN ... AND ...</p>
+<p>查询语文成绩在 [80, 90] 分的同学及成绩</p>
+<pre><code>select name, score from student where score between 80 and 90;
+使用 AND 也可以实现
+select name, score from student where score &gt;=80 and score&lt;= 90;
+
+</code></pre>
+<p>2.IN</p>
+<p>查询成绩在59或者60的同学以及成绩</p>
+<pre><code>select name ,score from student where score in (59,60);
+也可以用or来实现
+select name ,score from studnet where score=59 or score=60;
+</code></pre>
+<p>3.模糊查询：like</p>
+<pre><code>-- % 匹配任意多个（包括 0 个）字符
+select name from studnt where name like '孙%';-- 匹配到孙悟空、孙权
+-- _ 匹配严格的一个任意字符
+select name from studnt where name like LIKE '孙_';-- 匹配到孙权
+</code></pre>
+<h3 id="去重查询">去重查询</h3>
+<p>当不需要重复的数据时，可以用以下关键字进行去重操作</p>
+<pre><code class="language-sql">select distinct name from student;
+</code></pre>
+<p>关键字<code>distinct</code>将可以对某列进行去重。</p>
+<h3 id="排序">排序</h3>
+<p>如果不进行排序操作，那么当查询结果出来时，数据时按照插入顺序显示，当需要某一列有顺序时，需要在查询的时候进行对某列排序。</p>
+<p>例如，现在将找出学生中分数最低的同学。</p>
+<pre><code class="language-sql">select * from student order by score;
+</code></pre>
+<p><code>order by</code>就是进行排序的关键词，默认情况是升序，但是也可以在<code>order by</code>后加上<code>desc</code>，让其变成降序。</p>
+<p>也可以对多个列进行排序，<strong>排序优先级随书写顺序</strong></p>
+<p>如果有<code>WHERE</code>子句，那么<code>ORDER BY</code>子句要放到<code>WHERE</code>子句后面。这样，结果集仅包含符合<code>WHERE</code>条件的记录，并按照<code>ORDER BY</code>的设定排序。</p>
+<h3 id="分页查询">分页查询</h3>
+<p>如果数据量十分巨大，那么查询出来的数据放在一个页面上的话数量十分大，不方便越大；</p>
+<p>此时将其分页显示的话就会十分合适。而分页功能，就是是将数据分成指定条数作为一页。</p>
+<p>我们将结果分页，每页10条数据。</p>
+<pre><code class="language-sql">select * from student order by score limit 10 offset 0;
+</code></pre>
+<p><code>limit 10 offset 0</code>表示，对结果从第0条数据开始，最多取10条（可能数据量小于设定的分页数量）。</p>
+<p>当想跳过第一页时，我们只需<code>limit 10 offset 10</code>就可以查询到第二页。</p>
+<h3 id="聚合查询">聚合查询</h3>
+<h4 id="聚合函数">聚合函数</h4>
+<p>聚和函数就是sql在面对一些简单的数学计算，如：求平均、总数等，而专门提供的函数。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COUNT([DISTINCT] expr)</td>
+<td>返回查询到的数据的 数量</td>
+</tr>
+<tr>
+<td>SUM([DISTINCT] expr)</td>
+<td>返回查询到的数据的 总和，不是数字没有意义</td>
+</tr>
+<tr>
+<td>AVG([DISTINCT] expr)</td>
+<td>返回查询到的数据的 平均值，不是数字没有意义</td>
+</tr>
+<tr>
+<td>MAX([DISTINCT] expr)</td>
+<td>返回查询到的数据的 最大值，不是数字没有意义</td>
+</tr>
+<tr>
+<td>MIN([DISTINCT] expr)</td>
+<td>返回查询到的数据的 最小值，不是数字没有意义</td>
+</tr>
+</tbody>
+</table>
+<p>要特别注意：如果聚合查询的<code>WHERE</code>条件没有匹配到任何行，<code>COUNT()</code>会返回0，而<code>SUM()</code>、<code>AVG()</code>、<code>MAX()</code>和<code>MIN()</code>会返回<code>NULL</code>：</p>
+<h4 id="分组">分组</h4>
+<p>SELECT 中使用 <code>GROUP BY</code> 子句可以对指定列进行分组查询。需要满足：使用 <code>GROUP BY</code> 进行分组查<br>
+询时，SELECT 指定的字段必须是“分组依据字段”，其他字段若想出现在SELECT 中则必须包含在聚合函<br>
+数中。</p>
+<pre><code class="language-sql">select column1, sum(column2), .. from table group by column1,column3;
+</code></pre>
+<p>案例：</p>
+<ul>
+<li>
+<p>准备测试表及数据：职员表，有id（主键）、name（姓名）、role（角色）、salary（薪水）</p>
+</li>
+<li>
+<p>查询每个角色的最高工资、最低工资和平均工资</p>
+<pre><code class="language-SQL">- create table emp(
+- id int primary key auto_increment,
+- name varchar(20) not null,
+- role varchar(20) not null,
+- salary numeric(11,2)
+- );
+- insert into emp(name, role, salary) values
+- ('马云','服务员', 1000.20),
+- ('马化腾','游戏陪玩', 2000.99),
+- ('孙悟空','游戏角色', 999.11),
+- ('猪无能','游戏角色', 333.5),
+- ('沙和尚','游戏角色', 700.33),
+- ('隔壁老王','董事长', 12000.66);
+</code></pre>
+</li>
+<li>
+<p>查询每个角色的最高工资、最低工资和平均工资</p>
+<pre><code class="language-SQL">select role,max(salary),min(salary),avg(salary) from emp group by role;  
+</code></pre>
+</li>
+</ul>
+<h4 id="having">Having</h4>
+<p><code>GROUP BY</code> 子句进行分组以后，需要对分组结果再进行条件过滤时，不能使用 <code>WHERE</code> 语句，而需要用<br>
+HAVING</p>
+<ul>
+<li>
+<p>显示平均工资低于1500的角色和它的平均工资</p>
+<pre><code class="language-sql">select role,max(salary),min(salary),avg(salary) from emp group by role
+having avg(salary)&lt;1500;
+</code></pre>
+</li>
+</ul>
+<h3 id="联合查询多表查询">联合查询（多表查询）</h3>
+<p>在实际开发中，往往需要处理来自不同表的数据，所以需要进行联合查询。联合查询就是对多张表的笛卡儿积；</p>
+<p>查询多张表的语法是：<code>SELECT * FROM &lt;表1&gt; &lt;表2&gt;</code>。</p>
+<pre><code>select * from aaa,bbb;
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1710662154696.png" alt="" loading="lazy"></figure>
+<p>使用笛卡尔查询时要非常小心，由于结果集是目标表的行数乘积，假如表一有m行，表二有n行，那么它们的笛卡尔查询将返回n*m行，当n和m较大时，返回的数据量将十分大。</p>
+<h3 id="连接查询">连接查询</h3>
+<p>连接查询是另一种类型的多表查询。连接查询对多个表进行JOIN运算，简单地说，就是先确定一个主表作为结果集，然后，把其他表的行有选择性地“连接”在主表结果集上。</p>
+<h4 id="内连接">内连接</h4>
+<pre><code>select 字段 from 表1 别名1 [inner] join 表2 别名2 on 连接条件 and 其他条件;
+select 字段 from 表1 别名1,表2 别名2 where 连接条件 and 其他条件;
+</code></pre>
+<h4 id="外连接">外连接</h4>
+<p>外连接分为左外连接和右外连接。</p>
+<p>如果联合查询，<strong>左侧的表完全显示我们就说是左外连接</strong>；<strong>右侧的表完全显示我们就说是右外连接</strong>。</p>
+<pre><code>-- 左外连接，表1完全显示
+select 字段名 from 表名1 left join 表名2 on 连接条件;
+-- 右外连接，表2完全显示
+select 字段 from 表名1 right join 表名2 on 连接条件;
+</code></pre>
+<p>外连接的特点是当我们选择了完全显示一侧后，即使另一侧没有对应数据，需要完全显示的一侧也会显示，没有的数据则用null来填充。</p>
+<h2 id="修改和删除update-and-delete">修改和删除（Update and Delete）</h2>
+<h3 id="修改">修改</h3>
+<p>当需要在数据库表的数据进行修改是，可以使用关键词<code>update</code>来将对应数据修改；</p>
+<pre><code>update &lt;表名&gt; set 字段1=值1，字段2=值2 ... where ...
+</code></pre>
+<pre><code class="language-sql">--将一班，姓名为张三的同学，分数改为90；
+update students set score=90 where name='张三' and classid=1;
+</code></pre>
+<h3 id="删除">删除</h3>
+<pre><code>delete from 表名 where ....;
+</code></pre>
+<pre><code>--删除一班，姓名为张三的同学；
+delete from student where name='张三' and classid=1;
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>以上就是mysql中简单的crud，希望我的文章能够给你带来帮助。</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[优先级队列（堆）]]></title>
+        <id>https://dawangshangshan.github.io/post/you-xian-ji-dui-lie-dui/</id>
+        <link href="https://dawangshangshan.github.io/post/you-xian-ji-dui-lie-dui/">
+        </link>
+        <updated>2024-03-16T15:19:24.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="概念">概念</h2>
+<p>队列是一种先进先出(FIFO)的数据结构，但有些情况下，操作的数据可能带有优先级，一般出队列时，可能需要优先级高的元素先出队列  。</p>
+<p>在这种情况下，<strong>数据结构应该提供两个最基本的操作，一个是返回最高优先级对象，一个是添加新的对象</strong>。这种数<br>
+据结构就是<strong>优先级队列</strong>(Priority Queue)<strong>。</strong></p>
+<h2 id="优先级队列的模拟实现">优先级队列的模拟实现</h2>
+<p>Priority Queue在JDK1.8中使用了堆这种数据结构来实现</p>
+<h2 id="堆">堆</h2>
+<h3 id="堆的概念">堆的概念</h3>
+<p>如果有一个<strong>关键码的集合</strong>K = {k0**，<strong>k1</strong>，** k2**，<strong>…</strong>，<strong>kn-1}，把它的所有元素</strong>按完全二叉树的顺序存储方式存储 在一<br>
+个一维数组中**，并满足：Ki &lt;= K2i+1 <strong>且</strong> Ki&lt;= K2i+2 (Ki &gt;= K2i+1 且 Ki &gt;= K2i+2) i = 0，1，2…，则<strong>称为 小堆</strong>(或大<br>
+堆)。将根节点最大的堆叫做最大堆或大根堆，根节点最小的堆叫做最小堆或小根堆  。</p>
+<h3 id="堆的性质">堆的性质</h3>
+<ul>
+<li>堆是一棵完全二叉树</li>
+<li>堆中的某节点的值终是不大于其父节点的值</li>
+</ul>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1710602479646.png" alt="" loading="lazy"></figure>
+<h3 id="堆的存储方式">堆的存储方式</h3>
+<p>由于堆是一颗完全二叉树，因此可以层序的规则来顺序存储，是利用率十分高的结构。</p>
+<figure data-type="image" tabindex="2"><img src="https://dawangshangshan.github.io/post-images/1710602621669.png" alt="" loading="lazy"></figure>
+<p>将元素存储到数组中后，可以根据二叉树章节的性质5对树进行还原。  我们假设i为节点的下标，由此结构我们可以推出：</p>
+<ul>
+<li>如果i为0，则为根节点，否则i节点的双亲节点为（i-1）/2；</li>
+<li>如果2 * i + 1 小于节点个数，则节点i的左孩子下标为2 * i + 1，否则没有左孩子</li>
+<li>如果2 * i + 2 小于节点个数，则节点i的右孩子下标为2 * i + 2，否则没有右孩子</li>
+</ul>
+<h3 id="堆的创建">堆的创建</h3>
+<h4 id="堆向下调整大堆为例">堆向下调整（大堆为例）</h4>
+<p>1.让parent标记到需要调整的节点，child标记parent的左孩子（如果有孩子一定有左孩子）。</p>
+<p>2.如果有左孩子，即child小于size（设定的数组最大数量，比如你堆中有10个数，你想让10个都参与调整（0-9下标），那么size就是10，而想让5个进行调整，size就设为5（0-4下标），进行以下操作，直到parent没有孩子。</p>
+<ul>
+<li>parent是否有孩子，存在的话就到最大的孩子，让child标记最小的孩子</li>
+<li>让parent与最小的孩子child进行比较：
+<ul>
+<li>如果parent大于等于child，调整结束</li>
+<li>如果parent小于child，那么进行交换，而交换可能会导致下面的子树不满足大根堆的性质，因此我们需要继续向下调整：parent=child，child=child*2+1（原child的左孩子）；</li>
+</ul>
+</li>
+</ul>
+<pre><code class="language-java">private void siftDown(int parent,int len){
+    //如何有孩子，必定有左孩子
+        int child=parent*2+1;
+        while(child&lt;len){
+            //当有右孩子。且右孩子大于做孩子的值，将最大的孩子更新为右孩子。
+            if(child+1&lt;len&amp;&amp;elem[child]&lt;elem[child+1]){
+                child=child+1;
+            }
+            //此时已经找到了最大的孩子
+            //我们创建大根堆
+            if(elem[parent]&gt;=elem[child]){
+                //此时父亲节点大于孩子，符合大根堆条件
+                break;
+            }else{
+                //此时父亲节点小于孩子节点
+                int tmp=elem[parent];
+                elem[parent]=elem[child];
+                elem[child]=tmp;
+                //调整完成后，数据发生变动，可能下面孩子节点不符合了，我们继续调整。
+                parent=child;
+                child=parent*2+1;
+            }
+}
+
+</code></pre>
+<p><strong>注意：调整parent时，要满足parent的左右孩子都是堆才能进行向下调整。</strong></p>
+<p>向下调整时，最好的情况是一次都不调整</p>
+<p>最坏的情况是调整到叶子节点，调整次数为logn</p>
+<h4 id="利用向下调整创建堆">利用向下调整创建堆</h4>
+<p>当我们已经有一个未创建的序列时（如：，6，8，9，7，5，98，84，78），我们就可以利用向下建堆来完成堆的创建。</p>
+<p>由于向下调整使用的条件是要parent节点的左右子树都是堆，那么我们要对一个完全没有调整的树调整时，我们只能从最小的父亲节点开始调整，一直调整到根节点。</p>
+<pre><code class="language-java">public void createHeap(){
+        //当有孩子下标，双亲下标等于(child-1)/2
+        //leftchild=parent*2+1  right=parent*2+2;
+        //从下标最大的一个双亲节点开始
+        for(int parent=(usedSize-1-1)/2;parent&gt;=0;parent--){
+            siftDown(parent,usedSize);
+        }
+    }
+</code></pre>
+<h2 id="堆的插入与删除">堆的插入与删除</h2>
+<h3 id="堆的插入">堆的插入</h3>
+<ol>
+<li>先将元素插入到底层中</li>
+<li>将插入的元素进行向上调整</li>
+</ol>
+<figure data-type="image" tabindex="3"><img src="https://dawangshangshan.github.io/post-images/1710602668497.png" alt="" loading="lazy"></figure>
+<pre><code class="language-java">private void siftUP(int child){
+        int parent=(child-1)/2;
+        while(child&gt;0){
+            	if(elem[child]&gt;elem[parent]){
+                //此时不符合大根堆
+                int temp=elem[child];
+                elem[child]=parent;
+                elem[parent]=temp;
+                child=parent;
+                parent=(child-1)/2;
+            }else{
+                break;
+            }
+        }
+    }
+</code></pre>
+<h3 id="堆的删除">堆的删除</h3>
+<p><strong>堆的删除一定堆顶的元素</strong></p>
+<p>方法：</p>
+<ol>
+<li>将堆顶元素与最后一个元素进行交换</li>
+<li>将堆的有效元素减少一个</li>
+<li>对堆顶进行一次向下调整</li>
+</ol>
+<pre><code class="language-java">public void poll(){
+        //将第一个数与最后一个数交换，然后让usesize--，对第一个数进行一次向下调整
+        if(usedSize==0)return ;
+        int temp=elem[0];
+        elem[0]=elem[usedSize-1];
+        elem[usedSize-1]=temp;
+        siftDown(0,usedSize);
+        usedSize--;
+
+    }
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Map与Set]]></title>
+        <id>https://dawangshangshan.github.io/post/map-yu-set/</id>
+        <link href="https://dawangshangshan.github.io/post/map-yu-set/">
+        </link>
+        <updated>2024-03-13T09:19:27.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="set-map介绍">set、map介绍</h2>
+<p>set 代表着一种无序、元素不可重复的集合（key模型）</p>
+<p>map则是一种键值对（key——value模型）的集合,map的键的范围不限与Java自带的类型，还可以是自定义的对象</p>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1710321619621.png" alt="" loading="lazy"></figure>
+<p>map是一个接口类，该类中储存的是K,V&gt;结构的键值对，<strong>且K一定是唯一的</strong>，不能重复。</p>
+<h3 id="map的实例化">map的实例化</h3>
+<pre><code class="language-java">public static void main(String[] args) {
+    //这里的键值是两个integer
+        Map&lt;Integer,Integer&gt;map=new HashMap&lt;&gt;();
+        Map&lt;Integer,Integer&gt;map2=new TreeMap&lt;&gt;();
+    }
+</code></pre>
+<p>map只是一个接口，不能直接实例化对象，如果要实例化对象，只能实例化其实现类TreeMap或者HashMap。</p>
+<p>而且map的K—V，当我们选择java的基础的数据类型时，必须数据类型对应的类。</p>
+<h4 id="treemap-和-hashmap">TreeMap 和 HashMap</h4>
+<figure data-type="image" tabindex="2"><img src="https://dawangshangshan.github.io/post-images/1710321665066.png" alt="" loading="lazy"></figure>
+<h3 id="map的常用方法">map的常用方法</h3>
+<pre><code class="language-java">public static void main(String[] args) {
+        Map&lt;Integer,Integer&gt;map=new HashMap&lt;&gt;();
+    
+    	//1.返回 key 对应的 value
+        map.put(1,1);
+    
+    	//2.返回对应key的value值
+        int value1=map.get(1);
+    	
+    	//3.返回对应key的value值，当key不存在时返回默认值，下列默认值为10
+        int value2=map.getOrDefault(1,10);
+    
+    	//4.删除key对应的映射关系
+        map.remove(1);
+    
+    	//5.判断是否存在对应key
+        boolean keyiscontain=map.containsKey(1);
+    	
+    	//6.判断是否存在对应value
+        boolean valueiscontain=map.containsValue(1);
+    
+    	//7.返回所有key的不重复集合
+        for (int key:map.keySet()) {
+            System.out.println(key);
+        }
+    
+    	//返回所有value都重复集合
+        for(int value:map.values()){
+            System.out.println(value);
+        }
+    	
+    	//8.返回所有key-value映射关系
+        for(Map.Entry&lt;Integer,Integer&gt;entry:map.entrySet()){
+            System.out.println(entry.getKey()+&quot;  &quot;+entry.getValue());
+        }
+    }
+</code></pre>
+<h3 id="set的实例化">set的实例化</h3>
+<p>set与map相比，set中只有一个键—Key，且set继承了collection类（该类提供了一些常见的操作，如：添加元素、删除元素、判断集合是否为空、获取集合大小，迭代器等）。</p>
+<pre><code class="language-java">public static void main(String[] args) {
+        Set&lt;Integer&gt;set1=new HashSet&lt;&gt;();
+        Set&lt;Integer&gt;set2=new TreeSet&lt;&gt;();
+    }
+</code></pre>
+<p>set与map相似，都有两种不同的实例化：红黑树和哈希表两种结构。<br>
+<img src="https://dawangshangshan.github.io/post-images/1710321683416.png" alt="" loading="lazy"></p>
+<h3 id="set的常用方法">set的常用方法</h3>
+<pre><code class="language-java"> public static void main(String[] args) {
+     //创建一个Integer类型的set
+        Set&lt;Integer&gt;set=new HashSet&lt;&gt;();
+     
+     
+     //1.将set中所有key清除
+        set.clear();
+     
+     //2.向set中添加key
+        set.add(1);
+     
+     //3.查询set中是否有所对应的key
+        boolean keyiscontain=set.contains(1);
+     
+     //4.返回set的迭代器
+        Iterator&lt;Integer&gt;iterator=set.iterator();
+     	//使用迭代器遍历set中所有的key
+        while(iterator.hasNext()){
+            int key=iterator.next();
+            System.out.println(key);
+        }
+     
+     //5.删除set中对应的key
+        set.remove(1);
+     
+     //6.返回set中key的数量
+        int size= set.size();
+        
+     //7.判断set是否为空
+     	boolean isEmpoty= set.isEmpty();
+     
+     //8.将set中的所有key转换为数组并返回
+        Object[] array = set.toArray();
+     	打印数组
+        for (Object element : array) {
+            System.out.println(element);
+        }
+     
+     //判断集合的元素是否全部在set中
+     List&lt;String&gt; list1 = new ArrayList&lt;&gt;();
+        list1.add(&quot;Apple&quot;);
+        list1.add(&quot;Banana&quot;);
+        list1.add(&quot;Orange&quot;);
+
+        List&lt;String&gt; list2 = new ArrayList&lt;&gt;();
+        list2.add(&quot;Apple&quot;);
+        list2.add(&quot;Banana&quot;);
+
+        boolean containsAllElements = list1.containsAll(list2);
+
+        System.out.println(&quot;list1 contains all elements in list2: &quot; + containsAllElements);
+ }
+</code></pre>
+<h2 id="map与set的使用场景">Map与Set的使用场景</h2>
+<h3 id="set">Set</h3>
+<p>Set的特点，<strong>只有一个key值，且不可以重复</strong></p>
+<p>所以当我们用于查询数字、字段是否出现时，就可以用上set</p>
+<p>列如在以下场景：</p>
+<p>在词库中查询是否有该单词</p>
+<p>在数组是否出现指定数字</p>
+<h3 id="map">Map</h3>
+<p>Map具有key—value键值对，当key增加时，value也会随着增加</p>
+<p>所有我们可以用于储存数字、字段的出现次数时，就可以用上map</p>
+<p>如以下场景：</p>
+<p>此单词在文本中出现了多少次</p>
+<p>此数字在数组中出现了多少次</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[栈与队列算法专题]]></title>
+        <id>https://dawangshangshan.github.io/post/zhan-yu-dui-lie-suan-fa-zhuan-ti/</id>
+        <link href="https://dawangshangshan.github.io/post/zhan-yu-dui-lie-suan-fa-zhuan-ti/">
+        </link>
+        <updated>2023-12-08T06:54:21.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="循环队列">循环队列</h2>
+<p><img src="https://dawangshangshan.github.io/post-images/1702018523419.png" alt="" loading="lazy"><br>
+<img src="https://dawangshangshan.github.io/post-images/1702018531709.png" alt="" loading="lazy"></p>
+<p>如果队列可以循环使用，即在一个固定大小的数值中来实现队列，我们即称为循环队列</p>
+<h3 id="参数">参数</h3>
+<p>front：对头下标，存放队列第一个有效数据的下标</p>
+<p>rear：存放队尾元素的下一个下标</p>
+<h3 id="队列初始化">队列初始化</h3>
+<pre><code class="language-java">int[] circularqueue;
+int rear;
+int front;
+public MyCircularQueue(int k) {
+        circularqueue=new int[k+1];
+        front=1;
+        rear=1;
+    }
+</code></pre>
+<p>为了区分空队列和满队列：我们将空出一个空间来方便我们判断</p>
+<p>这样的话，当我们可以知道当rear==front时，队列为空；(rear+1)%circularqueue.length=front时，队列满了</p>
+<h3 id="进队">进队</h3>
+<p>进队我们就让rear往后移一位，即：rear+1；</p>
+<p>但是由于我们是循环队列，rear可以从图中a7回到a1，而rear+1，是无法完成这样的操作，接下来我们就将使用取模的方法实现</p>
+<pre><code class="language-java">public boolean enQueue(int value) {
+    //判断队列是否满了
+        if(isFull())return false;
+        else{
+            //由于rear指向的是队尾下一个元素，所以直接将要存放的数值放入到rear下标
+            circularqueue[rear]=value;
+            //rear的数值是属于[0，circularqueue.length-1]，（rear+1）%circularqueue.length,当rear=circularqueue.length-1，再加一，就超出数组下标，但是我们对其取模，就将它再次指向0下标
+            rear=(rear+1)%circularqueue.length;
+        }
+        return true;
+    }
+</code></pre>
+<h3 id="出队">出队</h3>
+<p>出队操作我们让front+1，但由于我们要在队列中循环，所以front+1也要进行取模操作</p>
+<pre><code class="language-java">public boolean deQueue() {
+		//队列为空是无法出队
+        if(isEmpty())return false;
+        else{
+        //将对头直接+1，后续进队时，会将出队的位置直接覆盖，所以无需进行其他操作
+            front=(front+1)%circularqueue.length;
+        }
+        return true;
+    }
+</code></pre>
+<h3 id="取对头">取对头</h3>
+<pre><code class="language-java">public int Front() {
+        if(isEmpty()){
+            return -1;
+        }
+        else{
+            return circularqueue[front];
+        }
+	}
+</code></pre>
+<h3 id="取队尾">取队尾</h3>
+<p>由于队尾的有效元素在rear-1出，而当rear为0时，就会使下标为-1，所以我们需要对其进行加上数组长度再取模操作</p>
+<pre><code class="language-java">public int Rear() {
+        if(isEmpty())return -1;
+        else{
+            return circularqueue[(rear-1+circularqueue.length)%circularqueue.length];
+        }
+    }
+</code></pre>
+<h3 id="判空">判空</h3>
+<pre><code class="language-java">public boolean isEmpty() {
+        return rear==front;
+    }
+</code></pre>
+<h3 id="判满">判满</h3>
+<pre><code class="language-java">public boolean isFull() {
+        return (rear+1)%circularqueue.length==front;
+    }
+</code></pre>
+<h2 id="栈的压入和弹出顺序">栈的压入和弹出顺序</h2>
+<h3 id="描述">描述</h3>
+<p>输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否可能为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1,2,3,4,5是某栈的压入顺序，序列4,5,3,2,1是该压栈序列对应的一个弹出序列，但4,3,5,1,2就不可能是该压栈序列的弹出序列。</p>
+<pre><code>输入：
+[1,2,3,4,5],[4,5,3,2,1]
+复制
+返回值：
+true
+复制
+说明：
+可以通过push(1)=&gt;push(2)=&gt;push(3)=&gt;push(4)=&gt;pop()=&gt;push(5)=&gt;pop()=&gt;pop()=&gt;pop()=&gt;pop()
+这样的顺序得到[4,5,3,2,1]这个序列，返回true
+</code></pre>
+<h3 id="思路">思路</h3>
+<p>我们由题目得知，有两个数组，一个为入栈数组，一个为出栈数组，判断出栈数组，是否符合入栈数组。</p>
+<p>这题思路比较简单，我们只需要模拟出栈的顺序就可以判断：</p>
+<pre><code class="language-java">public class Solution {
+    /**
+     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可
+     *
+     * 
+     * @param pushV (入栈数组)int整型一维数组 
+     * @param popV （出栈数组）int整型一维数组 
+     * @return bool布尔型
+     */
+    public boolean IsPopOrder (int[] pushV, int[] popV) {
+        //申请一个栈用于模拟入栈顺序和出栈顺序
+        Stack&lt;Integer&gt;elem=new Stack&lt;&gt;();
+        //用于记录入栈数组下标
+        int j=0;
+		//循环访问入栈数组
+        for(int i=0;i&lt;popV.length;i++){
+            //当栈为空，或者栈顶元素不等与i下标的出栈元素时，一直将入栈数组对应的元素入栈，模拟入栈
+            while(j&lt;popV.length&amp;&amp;(elem.empty()||elem.peek()!=popV[i])){
+                elem.push(pushV[j]);
+                j++;
+            }
+            //如果栈顶元素与i下标出栈元素相同，我们就将栈顶pop，模拟栈出。
+            if(elem.peek()==popV[i]){
+                elem.pop();
+            } 
+        }
+        //当最后栈为空，就说明出栈顺序没有问题
+        if(elem.empty())return true;
+        return false;
+    }
+}
+</code></pre>
+<h2 id="逆波兰表达式">逆波兰表达式</h2>
+<h3 id="描述-2">描述</h3>
+<p>给你一个字符串数组 <code>tokens</code> ，表示一个根据 <a href="https://baike.baidu.com/item/%E9%80%86%E6%B3%A2%E5%85%B0%E5%BC%8F/128437">逆波兰表示法</a> 表示的算术表达式。</p>
+<p>请你计算该表达式。返回一个表示表达式值的整数。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>
+<p>有效的算符为 <code>'+'</code>、<code>'-'</code>、<code>'*'</code> 和 <code>'/'</code> 。</p>
+</li>
+<li>
+<p>每个操作数（运算对象）都可以是一个整数或者另一个表达式。</p>
+</li>
+<li>
+<p>两个整数之间的除法总是 <strong>向零截断</strong> 。</p>
+</li>
+<li>
+<p>表达式中不含除零运算。</p>
+</li>
+<li>
+<p>输入是一个根据逆波兰表示法表示的算术表达式。</p>
+</li>
+<li>
+<p>答案及所有中间计算结果可以用 <strong>32 位</strong> 整数表示。</p>
+</li>
+<li>
+<pre><code class="language-java">输入：tokens = [&quot;2&quot;,&quot;1&quot;,&quot;+&quot;,&quot;3&quot;,&quot;*&quot;]
+输出：9
+解释：该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
+</code></pre>
+</li>
+</ul>
+<h3 id="思路-2">思路</h3>
+<p>这个问题的解决思路相对比较简单，困难的是知道什么事逆波兰表达式，各位看官可自行了解，这里便不多赘述。</p>
+<p>当我们遇到数字时，将数字入栈</p>
+<p>遇到运算符时，取出栈顶元素p2，然后再取出栈顶元素p1，p2为运算符的右值，p1为左值，得出的结果入栈，重复此操作，直至将表达式遍历完成，最后的结果就是栈留下的最后一个元素。</p>
+<pre><code class="language-java">class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack&lt;Integer&gt; elem=new Stack&lt;&gt;();
+        for(int i=0;i&lt;tokens.length;i++){
+            //取出表达式
+            String temp=tokens[i];
+            //当为运算符时
+            if(temp.equals(&quot;-&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1-p2);
+            }
+            else if(temp.equals(&quot;*&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1*p2);
+            }else if(temp.equals(&quot;+&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1+p2);
+            }else if(temp.equals(&quot;/&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1/p2);
+            }
+            //当是数字的时候
+            else{
+                elem.push(Integer.valueOf(temp));
+            }
+        }  
+        //最后一个元素就是表达式结果
+        return elem.pop();
+    }
+
+}
+</code></pre>
+<h2 id="用栈模拟实现队列">用栈模拟实现队列</h2>
+<h3 id="描述-3">描述</h3>
+<p>请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（<code>push</code>、<code>pop</code>、<code>peek</code>、<code>empty</code>）：</p>
+<pre><code class="language-java">输入：
+[&quot;MyQueue&quot;, &quot;push&quot;, &quot;push&quot;, &quot;peek&quot;, &quot;pop&quot;, &quot;empty&quot;]
+[[], [1], [2], [], [], []]
+输出：
+[null, null, null, 1, 1, false]
+</code></pre>
+<h3 id="思路-3">思路</h3>
+<p>我们使用两个栈来辅助我们实现队列，一个是作为入队用的栈stack1，一个用作出队的栈stack2</p>
+<p>当我们入队时，直接将数据入栈到stack1中</p>
+<p>出队时，如果stack2 为空，将stack中的数据出栈并入栈到stack2中，再出栈stack2</p>
+<p>如果不为空，直接出栈stack2</p>
+<pre><code class="language-java">class MyQueue {
+    Stack&lt;Integer&gt;stack1;
+    Stack&lt;Integer&gt;stack2;
+    public MyQueue() {
+        stack1=new Stack&lt;&gt;();
+        stack2=new Stack&lt;&gt;();
+    }
+    
+    public void push(int x) {
+        stack1.push(x);
+    }
+    
+    public int pop() {
+        	//队列为空直接返回-1
+        if(empty())return -1;
+        else{
+                //至少有一个栈不为空
+            if(stack2.empty()){
+                //将stack1的数据入到stack2
+                while(!stack1.empty()){
+                    stack2.push(stack1.pop());
+                }
+                //stack2栈顶就是队列头元素
+                return stack2.pop();
+            }else{
+                return stack2.pop();
+            }
+        }
+    }
+    
+    public int peek() {
+    	//队列为空直接返回-1
+        if(empty())return -1;
+        //至少有一个栈不为空
+        else{
+        	//stack1不为空时
+             if(stack2.empty()){
+             //将stack1的数据入到stack2
+                 while(!stack1.empty()){
+                    stack2.push(stack1.pop());
+                }
+               //stack2栈顶就是队列头元素
+                return stack2.peek();
+            }else{
+                return stack2.peek();
+            }
+        }
+    }
+    //当1、2两个栈都为空时，队列为空
+    public boolean empty() {
+        return stack1.empty()&amp;&amp;stack2.empty();
+    }
+}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[java小项目——图书管理系统]]></title>
+        <id>https://dawangshangshan.github.io/post/java-xiao-xiang-mu-tu-shu-guan-li-xi-tong/</id>
+        <link href="https://dawangshangshan.github.io/post/java-xiao-xiang-mu-tu-shu-guan-li-xi-tong/">
+        </link>
+        <updated>2023-12-06T09:08:22.000Z</updated>
+        <summary type="html"><![CDATA[<p>当我们学完了javaSE之后，总感觉有些空虚——学了这些东西能做些什么呢？</p>
+<p>今天给大家介绍一个项目——图书管理系统小项目，一个包含了<strong>封装、继承、多态、异常</strong>的项目，将自己所学到的知识有运用出来！</p>
+<h2 id="项目大概组成">项目大概组成：</h2>
+<p>我们将实现一个：管理员可以增加、删除、查找书籍，用户可以查看、借阅、归还书籍</p>
+<p>我们将对每一个大的分类开辟一个包，方便对其进行管理。</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231206153430941.png" alt="image-20231206153430941" loading="lazy"></figure>
+<h2 id="书架包">书架包</h2>
+<p>对于书架这个包，我们将创建两个类：书、书架。</p>
+<h3 id="书">书</h3>
+<p>书是用于描述书这个抽象类，将包含书的名字，作者，价格，类型，是否被借出；</p>
+<p>而对于书我们只实现一些基本都get和set操作，并重写toString方法。</p>
+<pre><code class="language-java">package book;
+
+import java.util.Objects;
+
+public class Book {
+    private String name;
+    private String athour;
+    private int price;
+    private String type;
+    private boolean isBorrowed;
+
+    public Book(String name, String athour, int price, String type) {
+        this.name = name;
+        this.athour = athour;
+        this.price = price;
+        this.type = type;
+        this.isBorrowed = isBorrowed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAthour() {
+        return athour;
+    }
+
+    public void setAthour(String athour) {
+        this.athour = athour;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isBorrowed() {
+        return isBorrowed;
+    }
+
+    public void setBorrown(boolean borrowed) {
+        isBorrowed = borrowed;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Book{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                &quot;, athour='&quot; + athour + '\'' +
+                &quot;, price=&quot; + price +
+                &quot;, type='&quot; + type + '\'' +
+                ((isBorrowed == true) ? &quot; 已经借出&quot; : &quot; 未被借出&quot;) +
+                '}';
+    }
+
+
+
+}
+
+</code></pre>
+<h3 id="书架类">书架类</h3>
+<p>书架类的成员变量也比较简单：书数组和记录书数组内有效书的大小。</p>
+<p>书架类的方法我们只是有简单的set和get方法</p>
+<pre><code class="language-java">package book;
+
+public class BookList {
+    private Book[] books;
+    private int usedSize;
+    public static final int maxSize=10;
+
+    public BookList() {
+        this.books = new Book[maxSize];
+        this.usedSize = 3;
+        this.books[0]=new Book(&quot;三国演义&quot;,&quot;罗贯中&quot;,10,&quot;小说&quot;);
+        this.books[1] = new Book(&quot;西游记&quot;,&quot;吴承恩&quot;,9,&quot;小说&quot;);
+        this.books[2] = new Book(&quot;红楼梦&quot;,&quot;曹雪芹&quot;,19,&quot;小说&quot;);
+    }
+
+    public Book getBooks(int pos) {
+        return books[pos];
+    }
+
+    public void setBooks(Book books,int pos) {
+        this.books[pos] = books;
+    }
+
+    public int getUsedSize() {
+        return usedSize;
+    }
+
+    public void setUsedSize(int usedSize) {
+        this.usedSize = usedSize;
+    }
+}
+
+</code></pre>
+<h2 id="操作包">操作包</h2>
+<p>对于操作包内的类，我们讲使用接口来实现——为什么使用接口？</p>
+<p>因为对于不同的操作，只需要使用同一个接口，我们就行只用一个接口来调用所有操作，这大大减少了我们的代码量和增加阅读便利。</p>
+<h3 id="操作接口">操作接口</h3>
+<pre><code class="language-java">package operation;
+import book.BookList;
+public  interface IOopertation {
+    void work(BookList books);
+
+}
+</code></pre>
+<h3 id="增加书籍类">增加书籍类</h3>
+<p>由于我们要对书籍类的对象进行创建，并将书籍放入书架的操作，所以我们需要导入书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class AddOpertation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;输入书名：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+
+        System.out.println(&quot;请输入作者：&quot;);
+        String author = scanner.nextLine();
+
+        System.out.println(&quot;请输入类型：&quot;);
+        String type = scanner.nextLine();
+
+        System.out.println(&quot;请输入价格：&quot;);
+        int price = scanner.nextInt();
+
+        Book tempbook=new Book(name,author,price,type);
+        //创建书籍对象
+        int currentsize= books.getUsedSize();
+        //查看是否有重复的
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book book1 = books.getBooks(i);
+            if(book1.getName().equals(name)) {
+                System.out.println(&quot;有这本书，不进行存放了！&quot;);
+                return;
+            }
+        }
+        //书架容量是否满了
+        if(books.getUsedSize()==BookList.maxSize){
+            System.out.println(&quot;书架满了&quot;);
+        }else{
+            //未满
+            books.setBooks(tempbook,currentsize);
+            //容量加一
+            books.setUsedSize(currentsize+1);
+        }
+    }
+
+}
+
+</code></pre>
+<h3 id="删除书籍类">删除书籍类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Deleteopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;删除图书！&quot;);
+        System.out.println(&quot;请输入要删除的图书&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        int pos=-1;
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                pos=i;
+                break;
+            }
+            if(i == currentsize) {
+                System.out.println(&quot;没有你要删除的图书！&quot;);
+                return;
+            }
+        }
+        int i=0;
+        //将空出来的位置填充
+        for (i = pos; i &lt; currentsize-1; i++) {
+            Book temp=book.getBooks(i+1);
+            book.setBooks(temp,i);
+        }
+        book.setBooks(null,i);
+
+        book.setUsedSize(currentsize-1);
+    }
+}
+</code></pre>
+<h3 id="借阅书架类">借阅书架类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<p>在此操作中，我们查阅到你想要的书，并将书的是否借阅的值改为true</p>
+<pre><code>package operation;
+
+import book.BookList;
+import book.Book;
+import java.util.Scanner;
+
+public class Borrowoperation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;请输入要借阅的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= books.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=books.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                if(tempbook.isBorrowed()==false){
+                    System.out.println(&quot;借阅成功！&quot;);
+                    tempbook.setBorrown(true);
+                    return;
+                }
+                else {
+                    System.out.println(&quot;已经被借阅！&quot;);
+                }
+            }
+        }
+        System.out.println(&quot;没有此书！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="退出类">退出类</h3>
+<pre><code class="language-java">package operation;
+
+import book.BookList;
+
+public class Exitopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;退出系统&quot;);
+        System.exit(0);
+    }
+}
+</code></pre>
+<h3 id="查找书籍类">查找书籍类</h3>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Findopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;请输入你所查询的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                System.out.println(&quot;找到你所查询的书籍了：&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;书库中没有此书籍！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="归还书籍类">归还书籍类</h3>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class ReturnOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;归还图书！&quot;);
+        Scanner scanner=new Scanner(System.in);
+        System.out.println(&quot;输入要归还的书籍：&quot;);
+        String name=scanner.nextLine();
+        for (int i = 0; i &lt; book.getUsedSize(); i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                tempbook.setBorrown(false);
+                System.out.println(&quot;归还成功&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;你归还的图书 不存在！！ &quot;);
+    }
+}
+
+</code></pre>
+<p>打印全部书籍类</p>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+import com.sun.javaws.IconUtil;
+
+public class ShowOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;打印图书:&quot;);
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            System.out.println(tempbook);
+        }
+    }
+}
+
+</code></pre>
+<h2 id="用户包">用户包</h2>
+<p>对于用户包，我们在包下会创建两个类：普通用户，管理员，但是我们在实现时，发现，两个类有很多相似的地方，于是就用一个名为的user的父类，来包含他们之间的共同之处。</p>
+<h3 id="user父类">user父类</h3>
+<p>我们作为使用人员，可以进行不同的操作，所以我们使用了一个接口数组，来实现我们不同的操作</p>
+<p>对于用户来说，都有点一个菜单栏</p>
+<pre><code class="language-java">package user;
+import operation.IOopertation;
+import book.BookList;
+public abstract class user {
+    protected String name;
+    protected IOopertation[] ioopertation;
+    public user(String name) {
+        this.name = name;
+    }
+
+    public abstract int menu();
+
+
+    public void doOperation(int choice, BookList bookList) {
+        ioopertation[choice].work(bookList);
+    }
+}
+</code></pre>
+<h3 id="adminuser">adminUser</h3>
+<p>对于管理人员来说，可以使用的操作为：增删查改，和打印全部书籍</p>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="normaluser">normalUser</h3>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="管理员登陆异常">管理员登陆异常</h3>
+<p>密码异常</p>
+<pre><code class="language-java">package user;
+
+public class PasswardException extends RuntimeException{
+    public PasswardException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<p>用户名异常</p>
+<pre><code class="language-java">package user;
+
+public class UsernameException extends RuntimeException{
+    public UsernameException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<h2 id="登陆">登陆</h2>
+<pre><code class="language-java">import book.BookList;
+import user.*;
+import java.util.Scanner;
+
+
+public class Login {
+    private static final String userName=&quot;admin&quot;;
+    private static final String passward=&quot;123456&quot;;
+    //返回不同的用户类
+    public static user login(){
+        System.out.println(&quot;请输入你的身份，1：管理员  2：普通用户-》&quot;);
+        Scanner in=new Scanner(System.in);
+        int choice=in.nextInt();
+        if(choice==1){
+            System.out.println(&quot;请输入管理员姓名：&quot;);
+           	in = new Scanner(System.in);
+            String name=in.nextLine();
+            //抛出异常
+            if(!name.equals(Login.userName)) {
+                throw new UsernameException(&quot;管理员名字输入错误&quot;);
+            }
+            System.out.println(&quot;请输入管理员密码&quot;);
+            String passwords=in.nextLine();
+            //抛出异常
+            if(!passwords.equals(Login.passward)){
+                throw new PasswardException(&quot;管理员密码错误&quot;);
+            }
+            return new adminUser(name);
+        }
+        else{
+            System.out.println(&quot;请输入你的姓名：&quot;);
+            String name=in.nextLine();
+
+            return new normalUser(name);
+        }
+
+
+    }
+    public static void main(String[] args) {
+        //创建书架
+        BookList bookList = new BookList();
+        //可能有异常
+        try {
+            //对用户类型进行选择，用父类对象接受子类对象，向上转型
+            user huser=login();
+            //不停的执行操作，知道选择退出
+            while(true){
+                int choice= huser.menu();
+                huser.doOperation(choice,bookList);
+            }
+        }catch (UsernameException x){
+            x.printStackTrace();
+        }catch (PasswardException x){
+            x.printStackTrace();
+        }
+
+
+    }
+}
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>在这个小项目中，我们运用了包对类进行管理，运用接口来实现调用的简化——调用接口就可以调用使用了接口的类，运用了继承来实现了多态，减少了代码量，提高了代码可读性。</p>
+]]></summary>
+        <content type="html"><![CDATA[<p>当我们学完了javaSE之后，总感觉有些空虚——学了这些东西能做些什么呢？</p>
+<p>今天给大家介绍一个项目——图书管理系统小项目，一个包含了<strong>封装、继承、多态、异常</strong>的项目，将自己所学到的知识有运用出来！</p>
+<h2 id="项目大概组成">项目大概组成：</h2>
+<p>我们将实现一个：管理员可以增加、删除、查找书籍，用户可以查看、借阅、归还书籍</p>
+<p>我们将对每一个大的分类开辟一个包，方便对其进行管理。</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231206153430941.png" alt="image-20231206153430941" loading="lazy"></figure>
+<h2 id="书架包">书架包</h2>
+<p>对于书架这个包，我们将创建两个类：书、书架。</p>
+<h3 id="书">书</h3>
+<p>书是用于描述书这个抽象类，将包含书的名字，作者，价格，类型，是否被借出；</p>
+<p>而对于书我们只实现一些基本都get和set操作，并重写toString方法。</p>
+<pre><code class="language-java">package book;
+
+import java.util.Objects;
+
+public class Book {
+    private String name;
+    private String athour;
+    private int price;
+    private String type;
+    private boolean isBorrowed;
+
+    public Book(String name, String athour, int price, String type) {
+        this.name = name;
+        this.athour = athour;
+        this.price = price;
+        this.type = type;
+        this.isBorrowed = isBorrowed;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAthour() {
+        return athour;
+    }
+
+    public void setAthour(String athour) {
+        this.athour = athour;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public boolean isBorrowed() {
+        return isBorrowed;
+    }
+
+    public void setBorrown(boolean borrowed) {
+        isBorrowed = borrowed;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Book{&quot; +
+                &quot;name='&quot; + name + '\'' +
+                &quot;, athour='&quot; + athour + '\'' +
+                &quot;, price=&quot; + price +
+                &quot;, type='&quot; + type + '\'' +
+                ((isBorrowed == true) ? &quot; 已经借出&quot; : &quot; 未被借出&quot;) +
+                '}';
+    }
+
+
+
+}
+
+</code></pre>
+<h3 id="书架类">书架类</h3>
+<p>书架类的成员变量也比较简单：书数组和记录书数组内有效书的大小。</p>
+<p>书架类的方法我们只是有简单的set和get方法</p>
+<pre><code class="language-java">package book;
+
+public class BookList {
+    private Book[] books;
+    private int usedSize;
+    public static final int maxSize=10;
+
+    public BookList() {
+        this.books = new Book[maxSize];
+        this.usedSize = 3;
+        this.books[0]=new Book(&quot;三国演义&quot;,&quot;罗贯中&quot;,10,&quot;小说&quot;);
+        this.books[1] = new Book(&quot;西游记&quot;,&quot;吴承恩&quot;,9,&quot;小说&quot;);
+        this.books[2] = new Book(&quot;红楼梦&quot;,&quot;曹雪芹&quot;,19,&quot;小说&quot;);
+    }
+
+    public Book getBooks(int pos) {
+        return books[pos];
+    }
+
+    public void setBooks(Book books,int pos) {
+        this.books[pos] = books;
+    }
+
+    public int getUsedSize() {
+        return usedSize;
+    }
+
+    public void setUsedSize(int usedSize) {
+        this.usedSize = usedSize;
+    }
+}
+
+</code></pre>
+<h2 id="操作包">操作包</h2>
+<p>对于操作包内的类，我们讲使用接口来实现——为什么使用接口？</p>
+<p>因为对于不同的操作，只需要使用同一个接口，我们就行只用一个接口来调用所有操作，这大大减少了我们的代码量和增加阅读便利。</p>
+<h3 id="操作接口">操作接口</h3>
+<pre><code class="language-java">package operation;
+import book.BookList;
+public  interface IOopertation {
+    void work(BookList books);
+
+}
+</code></pre>
+<h3 id="增加书籍类">增加书籍类</h3>
+<p>由于我们要对书籍类的对象进行创建，并将书籍放入书架的操作，所以我们需要导入书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class AddOpertation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;输入书名：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+
+        System.out.println(&quot;请输入作者：&quot;);
+        String author = scanner.nextLine();
+
+        System.out.println(&quot;请输入类型：&quot;);
+        String type = scanner.nextLine();
+
+        System.out.println(&quot;请输入价格：&quot;);
+        int price = scanner.nextInt();
+
+        Book tempbook=new Book(name,author,price,type);
+        //创建书籍对象
+        int currentsize= books.getUsedSize();
+        //查看是否有重复的
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book book1 = books.getBooks(i);
+            if(book1.getName().equals(name)) {
+                System.out.println(&quot;有这本书，不进行存放了！&quot;);
+                return;
+            }
+        }
+        //书架容量是否满了
+        if(books.getUsedSize()==BookList.maxSize){
+            System.out.println(&quot;书架满了&quot;);
+        }else{
+            //未满
+            books.setBooks(tempbook,currentsize);
+            //容量加一
+            books.setUsedSize(currentsize+1);
+        }
+    }
+
+}
+
+</code></pre>
+<h3 id="删除书籍类">删除书籍类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Deleteopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;删除图书！&quot;);
+        System.out.println(&quot;请输入要删除的图书&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        int pos=-1;
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                pos=i;
+                break;
+            }
+            if(i == currentsize) {
+                System.out.println(&quot;没有你要删除的图书！&quot;);
+                return;
+            }
+        }
+        int i=0;
+        //将空出来的位置填充
+        for (i = pos; i &lt; currentsize-1; i++) {
+            Book temp=book.getBooks(i+1);
+            book.setBooks(temp,i);
+        }
+        book.setBooks(null,i);
+
+        book.setUsedSize(currentsize-1);
+    }
+}
+</code></pre>
+<h3 id="借阅书架类">借阅书架类</h3>
+<p>引入书架包中的书籍类和书架类</p>
+<p>在此操作中，我们查阅到你想要的书，并将书的是否借阅的值改为true</p>
+<pre><code>package operation;
+
+import book.BookList;
+import book.Book;
+import java.util.Scanner;
+
+public class Borrowoperation implements IOopertation{
+    @Override
+    public void work(BookList books) {
+        System.out.println(&quot;请输入要借阅的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= books.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=books.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                if(tempbook.isBorrowed()==false){
+                    System.out.println(&quot;借阅成功！&quot;);
+                    tempbook.setBorrown(true);
+                    return;
+                }
+                else {
+                    System.out.println(&quot;已经被借阅！&quot;);
+                }
+            }
+        }
+        System.out.println(&quot;没有此书！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="退出类">退出类</h3>
+<pre><code class="language-java">package operation;
+
+import book.BookList;
+
+public class Exitopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;退出系统&quot;);
+        System.exit(0);
+    }
+}
+</code></pre>
+<h3 id="查找书籍类">查找书籍类</h3>
+<pre><code class="language-java">package operation;
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class Findopertation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;请输入你所查询的书籍：&quot;);
+        Scanner scanner=new Scanner(System.in);
+        String name=scanner.nextLine();
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                System.out.println(&quot;找到你所查询的书籍了：&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;书库中没有此书籍！&quot;);
+    }
+}
+
+</code></pre>
+<h3 id="归还书籍类">归还书籍类</h3>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+
+import java.util.Scanner;
+
+public class ReturnOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;归还图书！&quot;);
+        Scanner scanner=new Scanner(System.in);
+        System.out.println(&quot;输入要归还的书籍：&quot;);
+        String name=scanner.nextLine();
+        for (int i = 0; i &lt; book.getUsedSize(); i++) {
+            Book tempbook=book.getBooks(i);
+            if(tempbook.getName().equals(name)){
+                tempbook.setBorrown(false);
+                System.out.println(&quot;归还成功&quot;);
+                System.out.println(tempbook);
+            }
+        }
+        System.out.println(&quot;你归还的图书 不存在！！ &quot;);
+    }
+}
+
+</code></pre>
+<p>打印全部书籍类</p>
+<pre><code class="language-java">package operation;
+
+import book.Book;
+import book.BookList;
+import com.sun.javaws.IconUtil;
+
+public class ShowOperation implements IOopertation{
+    @Override
+    public void work(BookList book) {
+        System.out.println(&quot;打印图书:&quot;);
+        int currentsize= book.getUsedSize();
+        for (int i = 0; i &lt; currentsize; i++) {
+            Book tempbook=book.getBooks(i);
+            System.out.println(tempbook);
+        }
+    }
+}
+
+</code></pre>
+<h2 id="用户包">用户包</h2>
+<p>对于用户包，我们在包下会创建两个类：普通用户，管理员，但是我们在实现时，发现，两个类有很多相似的地方，于是就用一个名为的user的父类，来包含他们之间的共同之处。</p>
+<h3 id="user父类">user父类</h3>
+<p>我们作为使用人员，可以进行不同的操作，所以我们使用了一个接口数组，来实现我们不同的操作</p>
+<p>对于用户来说，都有点一个菜单栏</p>
+<pre><code class="language-java">package user;
+import operation.IOopertation;
+import book.BookList;
+public abstract class user {
+    protected String name;
+    protected IOopertation[] ioopertation;
+    public user(String name) {
+        this.name = name;
+    }
+
+    public abstract int menu();
+
+
+    public void doOperation(int choice, BookList bookList) {
+        ioopertation[choice].work(bookList);
+    }
+}
+</code></pre>
+<h3 id="adminuser">adminUser</h3>
+<p>对于管理人员来说，可以使用的操作为：增删查改，和打印全部书籍</p>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="normaluser">normalUser</h3>
+<pre><code class="language-java">package user;
+
+import operation.*;
+
+import java.util.Scanner;
+
+public class adminUser extends user {
+
+    public adminUser(String name) {
+        super(name);
+        this.ioopertation= new IOopertation[]{
+                new Exitopertation(),
+                new Findopertation(),
+                new AddOpertation(),
+                new Deleteopertation(),
+                new ShowOperation(),
+        };
+    }
+
+    @Override
+    public int menu() {
+        System.out.println(&quot;**********管理员用户*****&quot;);
+        System.out.println(&quot;1. 查找图书&quot;);
+        System.out.println(&quot;2. 新增图书&quot;);
+        System.out.println(&quot;3. 删除图书&quot;);
+        System.out.println(&quot;4. 显示图书&quot;);
+        System.out.println(&quot;0. 退出系统&quot;);
+        System.out.println(&quot;**********************&quot;);
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println(&quot;请输入你的操作：&quot;);
+        int choice = scanner.nextInt();
+        return choice;
+    }
+}
+
+</code></pre>
+<h3 id="管理员登陆异常">管理员登陆异常</h3>
+<p>密码异常</p>
+<pre><code class="language-java">package user;
+
+public class PasswardException extends RuntimeException{
+    public PasswardException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<p>用户名异常</p>
+<pre><code class="language-java">package user;
+
+public class UsernameException extends RuntimeException{
+    public UsernameException(String message) {
+        super(message);
+    }
+}
+</code></pre>
+<h2 id="登陆">登陆</h2>
+<pre><code class="language-java">import book.BookList;
+import user.*;
+import java.util.Scanner;
+
+
+public class Login {
+    private static final String userName=&quot;admin&quot;;
+    private static final String passward=&quot;123456&quot;;
+    //返回不同的用户类
+    public static user login(){
+        System.out.println(&quot;请输入你的身份，1：管理员  2：普通用户-》&quot;);
+        Scanner in=new Scanner(System.in);
+        int choice=in.nextInt();
+        if(choice==1){
+            System.out.println(&quot;请输入管理员姓名：&quot;);
+           	in = new Scanner(System.in);
+            String name=in.nextLine();
+            //抛出异常
+            if(!name.equals(Login.userName)) {
+                throw new UsernameException(&quot;管理员名字输入错误&quot;);
+            }
+            System.out.println(&quot;请输入管理员密码&quot;);
+            String passwords=in.nextLine();
+            //抛出异常
+            if(!passwords.equals(Login.passward)){
+                throw new PasswardException(&quot;管理员密码错误&quot;);
+            }
+            return new adminUser(name);
+        }
+        else{
+            System.out.println(&quot;请输入你的姓名：&quot;);
+            String name=in.nextLine();
+
+            return new normalUser(name);
+        }
+
+
+    }
+    public static void main(String[] args) {
+        //创建书架
+        BookList bookList = new BookList();
+        //可能有异常
+        try {
+            //对用户类型进行选择，用父类对象接受子类对象，向上转型
+            user huser=login();
+            //不停的执行操作，知道选择退出
+            while(true){
+                int choice= huser.menu();
+                huser.doOperation(choice,bookList);
+            }
+        }catch (UsernameException x){
+            x.printStackTrace();
+        }catch (PasswardException x){
+            x.printStackTrace();
+        }
+
+
+    }
+}
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>在这个小项目中，我们运用了包对类进行管理，运用接口来实现调用的简化——调用接口就可以调用使用了接口的类，运用了继承来实现了多态，减少了代码量，提高了代码可读性。</p>
+<!-- more -->
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[2023年10月月报]]></title>
+        <id>https://dawangshangshan.github.io/post/2023-nian-10-yue-yue-bao/</id>
+        <link href="https://dawangshangshan.github.io/post/2023-nian-10-yue-yue-bao/">
+        </link>
+        <updated>2023-12-05T01:37:04.000Z</updated>
+        <content type="html"><![CDATA[<h3 id="对于十月份的学习生活情况我自己做了一下总结">对于十月份的学习，生活情况我自己做了一下总结：</h3>
+<h4 id="学习上">学习上：</h4>
+<ul>
+<li>首先是顺利完成了c语言的学习，对c的理解更进一步了，期间也对指针有了更深入的理解</li>
+<li>开始重新学习了数据结构，对基本的数据结构类型有了初步的理解，同时对递归也进一步理解了</li>
+<li>不知道为何，对英语的学习是否懈怠的，特别是听力，感觉十分吃力</li>
+</ul>
+<h4 id="生活中">生活中：</h4>
+<ul>
+<li>本月对于体育锻炼还算是可以，我本人觉得生活中还是需要体育运动来调剂自己的生活，既能锻炼身体，又能调节心态，也行是在运动中，肾上腺素、多巴胺的分泌让人感到心情舒畅（毕竟情绪本质上也算是激素的分泌问题）</li>
+<li>明白了一件事：对于普通人来说，想要在某一件事上有所成就，除了天赋与努力外，就是长期以来的坚持，不需要一天花10小时去做，但可能需要几年每天都花半小时去做，我们不必要在短时间内一下子就要有所成就，我们可以将战线拉长，通过滴水穿石的坚持达到你想要的目标。</li>
+</ul>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[# 二叉树的题解  ## ]]></title>
+        <id>https://dawangshangshan.github.io/post/er-cha-shu-de-ti-jie/</id>
+        <link href="https://dawangshangshan.github.io/post/er-cha-shu-de-ti-jie/">
+        </link>
+        <updated>2023-11-03T00:51:05.000Z</updated>
+        <content type="html"><![CDATA[<h2 id="一二叉树中节点的路径">一.二叉树中节点的路径</h2>
+<p><strong>题目要求：在一个二叉树中，p为二叉树中的某一个值，编写算法求出p到根节点之间的路径</strong></p>
+<p>样列：</p>
+<p>给出二叉树的前序遍历：AB#D##C##</p>
+<p>查询节点D到根节点的路径</p>
+<p>输出：ABD</p>
+<h3 id="算法思路">算法思路：</h3>
+<p>利用回溯算法保存每个节点到根节点的路径，直到找到对应节点的路径时储存当前节点。</p>
+<figure data-type="image" tabindex="1"><img src="https://code-thinking-1253855093.file.myqcloud.com/pics/20210204151702443.png" alt="257.二叉树的所有路径" loading="lazy"></figure>
+<h3 id="代码实现">代码实现：</h3>
+<pre><code class="language-c++">void pathrecord(BT root, vector&lt;char&gt;&amp; spath, 
+                string&amp; retpath,char target) {
+
+	spath.push_back(root-&gt;val);
+	if (root-&gt;val == target) {
+		for (int i = 0; i &lt; spath.size(); i++) {
+			retpath += spath[i];
+		}
+		return;
+	}
+		if (root-&gt;left) {
+			pathrecord(root-&gt;left, spath, retpath, target);
+			spath.pop_back();
+		}
+		if (root-&gt;right) {
+			pathrecord(root-&gt;right, spath, retpath, target);
+			spath.pop_back();
+		}
+}
+</code></pre>
+<p>在实现代码时，四个参数的分别是：</p>
+<ul>
+<li>二叉树变量</li>
+<li>记录二叉树当前的路径的vector容器</li>
+<li>用于储存目标路径的字符串</li>
+<li>目标节点</li>
+</ul>
+<pre><code class="language-c++">spath.push_back(root-&gt;val);
+//将节点保存到spath中
+</code></pre>
+<pre><code class="language-c++">if (root-&gt;val == target) {
+	for (int i = 0; i &lt; spath.size(); i++) {
+		retpath += spath[i];
+	}
+	return;
+}
+//当我们找到对应节点时，将此时的spath中的内容保存到retpath中
+</code></pre>
+<h3 id="回溯">回溯：</h3>
+<p>这是这道题的关键部分，通常情况，回溯是伴随着递归同时出现。</p>
+<p>什么是回溯？</p>
+<p>如此图：</p>
+<figure data-type="image" tabindex="2"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231102114120835.png" alt="image-20231102114120835" loading="lazy"></figure>
+<p>当我们递归到D节点时，再退回的B节点时，我们记录路径的spath将不能再是ABD,</p>
+<p>而应该是AB，因为此时是在B节点上，此时应该对应：B到根节点的路径。</p>
+<pre><code class="language-c++">if (root-&gt;left) {
+		pathrecord(root-&gt;left, spath, retpath, target);
+		spath.pop_back();
+}
+if (root-&gt;right) {
+		pathrecord(root-&gt;right, spath, retpath, target);
+		spath.pop_back();
+}
+</code></pre>
+<p>当我们在遍历左右节点后，该操作就是回溯：</p>
+<pre><code class="language-c++">spath.pop_back();
+</code></pre>
+<h2 id="层序遍历">层序遍历：</h2>
+<p>我们使用队列来辅助实现<strong>队列先进先出，符合一层一层遍历的逻辑，而用栈先进后出适合模拟深度优先遍历也就是递归的逻辑。</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://code-thinking.cdn.bcebos.com/gifs/102%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86.gif" alt="102二叉树的层序遍历" loading="lazy"></figure>
+<pre><code class="language-c++">vector&lt;vector&lt;int&gt;&gt; tiertraversal(BT root) {
+	queue&lt;BT&gt;que;
+	if (root != NULL) {
+		que.push(root);
+	}
+	vector&lt;vector&lt;int&gt;&gt;result;
+	while (!que.empty()) {
+		int size = que.size();
+		vector&lt;int&gt;vec;
+		while (size--) {
+			BT temp = que.front();
+			que.pop();
+			vec.push_back(temp-&gt;val);
+			if (temp-&gt;left!=NULL) {
+				que.push(temp-&gt;left);
+			}
+			if(temp-&gt;right != NULL) {
+				que.push(temp-&gt;right);
+			}
+		}
+		result.push_back(vec);
+	}
+
+	return result;
+}
+
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231102120817577.png" alt="image-20231102120817577" loading="lazy"></figure>
+<p>对于该二叉树，我们先将根节点加进队列中，</p>
+<pre><code class="language-c++">queue&lt;BT&gt;que;//二叉树类型的队列
+	if (root != NULL) {
+		que.push(root);
+	}
+</code></pre>
+<p>此时第一层已经遍历完了。此时队列的大小为1，是二叉树第一层的大小。</p>
+<pre><code class="language-c++">vector&lt;vector&lt;int&gt;&gt;result;//记录所有层的节点
+	while (!que.empty()) {
+		int size = que.size();//记录当前层有多少节点
+		vector&lt;int&gt;vec;//用来记录当前层的节点
+		//当size为0时，说明当前层pop完毕
+		while (size--) {
+			BT temp = que.front();
+			que.pop();//将此层节点按照顺序出队列
+			vec.push_back(temp-&gt;val);//将节点数据push进记录当前                                      //  层的vector中
+			//每pop一个节点，就将它有效的左右节点push进入队列中
+			if (temp-&gt;left!=NULL) {
+				que.push(temp-&gt;left);
+			}
+			if(temp-&gt;right != NULL) {
+				que.push(temp-&gt;right);
+			}
+		}
+		//将此层的数据，push进入记录所有节点的vector容器中
+		result.push_back(vec);
+	}
+</code></pre>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[KMP算法难点解析]]></title>
+        <id>https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi/</id>
+        <link href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi/">
+        </link>
+        <updated>2023-10-24T05:24:49.000Z</updated>
+        <content type="html"><![CDATA[<p>当我们实现在文本中寻找是否有特定的文本出现，我们需要实现文本匹配算法。</p>
+<p>比如在文本：aabaabaaf   中，我们要查询是否有文本：aabaaf出现。</p>
+<p>关于暴力求解，我就不再过多赘述，直接进入正题。</p>
+<h2 id="kmp算法的关键最长公共前后缀">kmp算法的关键——最长公共前后缀</h2>
+<p>关于前后缀不了解的同学，我会简略说明。</p>
+<h3 id="前后缀">前后缀：</h3>
+<p><strong>前缀</strong>：<strong>是指不包含最后一个字符的所有以第一个字符开头的连续子串</strong>。</p>
+<p><strong>后缀</strong>：<strong>是指不包含第一个字符的所有以最后一个字符结尾的连续子串</strong>。</p>
+<p>如aabaa：</p>
+<p>前缀：a，aa，aab，aaba（从前向后）</p>
+<p>后缀：a,  aa ,  baa ,  abaa（从后向前）</p>
+<h3 id="最长公共前后缀next数组的关键">最长公共前后缀（next数组的关键）</h3>
+<p>我们使用上文的列子  eg：</p>
+<pre><code class="language-c">下标			012345
+文本			aabaaf
+前缀表  	   010120 
+//前缀表是用来回退的，它记录了模式串与主串(文本串)不匹配的时候，模式串应该从哪里开始重新匹配。
+</code></pre>
+<p>对于<strong>a</strong>，它是没有最长公共前后缀的。</p>
+<p>对于aa，前缀是a，后缀是a，前后缀有一个相同，这值为1</p>
+<p>对于aab，前缀是aa，后缀是ab，不相同，值为0；</p>
+<p>对于aaba，前缀是aab，后缀是aba，只有第一个相同，值为1；</p>
+<p>对于aabaa，前缀是aaba，后缀是  abaa，最长相等（aa）为2个，值为2。</p>
+<p>因此我们得到了此文本的前缀表。</p>
+<h2 id="next数组代码实现">next数组代码实现</h2>
+<pre><code class="language-c">//前缀表的实现
+//T字符串是所需要查询的文本，len是字符串大小
+void getNext(const char* T, int* next,int len)
+{
+	int j = 0;
+	next[0] = 0;
+    //第一个的前缀表一定是零，故初始化next[0]，并跳过第一个
+    //i=1
+	for (int i = 1; i &lt; len; i++)
+	{
+        //前后缀不相同的时候
+		while (j &gt; 0 &amp;&amp; T[i] != T[j])
+		{
+			j = next[j - 1];//当不相等时，j回退，如果回退后还不相							//等，继续回退，直到j==0。
+		}
+        //相同的时候
+		if (T[i] == T[j])
+		{
+			j++;
+		}
+		//将j（前缀的长度）赋给next[i]
+		next[i] = j;
+	}
+} 
+</code></pre>
+<p>当我们有了前缀表后，就可以进行匹配了。</p>
+<h2 id="kmp实现">KMP实现：</h2>
+<pre><code class="language-c">int KMP(char* S, char* T, int* next, int Slen,int Tlen)
+{
+    //j指向T，T是aabaaf。
+	int j = 0;
+    //i指向S文本，S是aabaabaaf。
+	for (int i = 0; i &lt; Slen; i++)
+	{
+
+		if (S[i] = T[j])
+		{
+			j++;
+		}
+		else {
+			while (j &gt; 0 &amp;&amp; S[i] != T[j])
+			{
+				j = next[j - 1];//退回，直到S[i]==T[j]或者j==0
+			}
+		}
+        //匹配完成
+		if (j == Tlen - 1 )
+		{
+			return 1;
+		}
+
+	}
+	return -1;
+}
+</code></pre>
+]]></content>
+    </entry>
+</feed>

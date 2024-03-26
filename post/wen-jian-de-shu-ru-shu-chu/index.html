@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>文件的输入输出 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="文件是什么？
+对于我们来说，我们熟知的是在c盘，d盘中一个个的文件，但对计算机来说，文件是在磁盘或者固态硬盘上的一段已命名的储存区。
+作为程序员我们关心c程序是如何处理文件。
+在c中，文件被炕做是一系列的字节，每个字节都可以单独读取。
+文本..." />
+    <meta name="keywords" content="c" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">文件的输入输出</h2>
+            <div class="post-date">2023-10-10</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/wen-jian-de-shu-ru-shu-chu.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="文件是什么">文件是什么？</h2>
+<p>对于我们来说，我们熟知的是在c盘，d盘中一个个的文件，但对计算机来说，文件是在磁盘或者固态硬盘上的一段已命名的储存区。</p>
+<p>作为程序员我们关心c程序是如何处理文件。</p>
+<p>在c中，文件被炕做是一系列的字节，每个字节都可以单独读取。</p>
+<h2 id="文本模式和二进制模式">文本模式和二进制模式</h2>
+<p><em>所有的文件内容都是以二进制形式储存</em></p>
+<p><strong>文件模式：</strong></p>
+<ul>
+<li>但是文件最初使用<strong>二进制编码的字符</strong>（如ASCII或者Unicode）表示文本，则该文件就是文本文件</li>
+</ul>
+<p><strong>二进制模式：</strong></p>
+<ul>
+<li>如果文件中的二进制值表示机器语言代码或者数值数据（int，long类型的值）或者图片，音乐编码</li>
+<li>该文件就是二进制文件，其中包含二进制内容</li>
+</ul>
+<p>如：</p>
+<p>如有整数10000，如果以ASCII码的形式输出到磁盘，则磁盘中占用5个字节（每个字符一个字节），而二进制形式输出，则在磁盘上只占4个字节</p>
+<figure data-type="image" tabindex="1"><img src="https://img-blog.csdnimg.cn/026e11c6082742918cd82d4197544c68.png" alt="img" loading="lazy"></figure>
+<h2 id="标准io">标准I/O</h2>
+<p>标准I/O是ANSI C建立的一个标准I/O模型，是一个标准函数包和stdio.h头文件中的定义，具有一定的可移植性。标准IO库处理很多细节。例如缓存分配，以优化长度执行IO等。</p>
+<p>标准的IO提供了三种类型的缓存。</p>
+<ul>
+<li>全缓存：当填满标准IO缓存后才进行实际的IO操作。</li>
+<li>行缓存：当输入或输出中遇到新行符时，标准IO库执行IO操作。</li>
+<li>不带缓存：stderr就是了</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>打开</th>
+<th>fopen,freopen,fdopen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>关闭</td>
+<td>fclose</td>
+</tr>
+<tr>
+<td>读</td>
+<td>getc,fgetc,getchar<br/>fgets,gets<br/>fread</td>
+</tr>
+<tr>
+<td>写</td>
+<td>putc,fputc,putchar<br/>fputs,puts,<br/>fwrite</td>
+</tr>
+</tbody>
+</table>
+<h2 id="文件缓冲区">文件缓冲区</h2>
+<p>ANSI C标准采用“缓冲文件系统”处理数据文件。</p>
+<p>所谓缓冲文件系统是指系统自动地在内存区为程序中每一个正在使用的文件开辟一个文件缓冲区从内存向磁盘输出数据必须先送到内存中的缓冲区，装满缓冲区后才一起送到磁盘去。</p>
+<p>如果从磁盘向计算机读入数据，则一次从磁盘文件将一批数据输入到内存缓冲区(充满缓冲区)，然后再从缓冲区逐个地将数据送到程序数据区(给程序变量) 。</p>
+<p><strong>磁盘文件的存取：</strong></p>
+<figure data-type="image" tabindex="2"><img src="https://img2018.cnblogs.com/i-beta/1183448/202002/1183448-20200229114252989-978233196.png" alt="img" loading="lazy"></figure>
+<p>磁盘文件，一般保存在硬盘、U盘等掉电不丢失的磁盘设备中，在需要时调入内存</p>
+<p>在内存中对文件进行编辑处理后，保存到磁盘中</p>
+<p>程序与磁盘之间交互，不是立即完成，系统或程序可根据需要设置缓冲区，以提高存取效率</p>
+<h3 id="更新文件缓存区c">更新文件缓存区c</h3>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int fflush(FILE *stream);
+</code></pre>
+<p>功能：更新缓冲区，让缓冲区的数据立马写到文件中。<br>
+参数：stream：文件指针</p>
+<p>返回值：成功：0   失败：-1</p>
+<h2 id="文件读取结束的判定">文件读取结束的判定</h2>
+<ol>
+<li>文本文件读取是否结束，判断返回值是否为 EOF （ fgetc ），或者 NULL （ fgets ）<br>
+例如：</li>
+</ol>
+<p>​				fgetc 判断是否为 EOF .<br>
+​				fgets 判断返回值是否为 NULL .</p>
+<ol start="2">
+<li>二进制文件的读取结束判断，判断返回值是否小于实际要读的个数。<br>
+例如：</li>
+</ol>
+<p>​				fread判断返回值是否小于实际要读的个数。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh/" class="tag">
+                    c
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/yi-ji-zhi-zhen-yu-er-ji-zhi-zhen-bu-de-bu-shuo-de-mi-mi/">
+                  <h3 class="post-title">
+                    一级指针与二级指针不得不说的秘密
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

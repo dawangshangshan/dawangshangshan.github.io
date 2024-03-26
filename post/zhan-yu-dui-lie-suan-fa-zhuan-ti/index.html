@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>栈与队列算法专题 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="循环队列
+
+
+如果队列可以循环使用，即在一个固定大小的数值中来实现队列，我们即称为循环队列
+参数
+front：对头下标，存放队列第一个有效数据的下标
+rear：存放队尾元素的下一个下标
+队列初始化
+int[] circularqueue;
+..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">栈与队列算法专题</h2>
+            <div class="post-date">2023-12-08</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="循环队列">循环队列</h2>
+<p><img src="https://dawangshangshan.github.io/post-images/1702018523419.png" alt="" loading="lazy"><br>
+<img src="https://dawangshangshan.github.io/post-images/1702018531709.png" alt="" loading="lazy"></p>
+<p>如果队列可以循环使用，即在一个固定大小的数值中来实现队列，我们即称为循环队列</p>
+<h3 id="参数">参数</h3>
+<p>front：对头下标，存放队列第一个有效数据的下标</p>
+<p>rear：存放队尾元素的下一个下标</p>
+<h3 id="队列初始化">队列初始化</h3>
+<pre><code class="language-java">int[] circularqueue;
+int rear;
+int front;
+public MyCircularQueue(int k) {
+        circularqueue=new int[k+1];
+        front=1;
+        rear=1;
+    }
+</code></pre>
+<p>为了区分空队列和满队列：我们将空出一个空间来方便我们判断</p>
+<p>这样的话，当我们可以知道当rear==front时，队列为空；(rear+1)%circularqueue.length=front时，队列满了</p>
+<h3 id="进队">进队</h3>
+<p>进队我们就让rear往后移一位，即：rear+1；</p>
+<p>但是由于我们是循环队列，rear可以从图中a7回到a1，而rear+1，是无法完成这样的操作，接下来我们就将使用取模的方法实现</p>
+<pre><code class="language-java">public boolean enQueue(int value) {
+    //判断队列是否满了
+        if(isFull())return false;
+        else{
+            //由于rear指向的是队尾下一个元素，所以直接将要存放的数值放入到rear下标
+            circularqueue[rear]=value;
+            //rear的数值是属于[0，circularqueue.length-1]，（rear+1）%circularqueue.length,当rear=circularqueue.length-1，再加一，就超出数组下标，但是我们对其取模，就将它再次指向0下标
+            rear=(rear+1)%circularqueue.length;
+        }
+        return true;
+    }
+</code></pre>
+<h3 id="出队">出队</h3>
+<p>出队操作我们让front+1，但由于我们要在队列中循环，所以front+1也要进行取模操作</p>
+<pre><code class="language-java">public boolean deQueue() {
+		//队列为空是无法出队
+        if(isEmpty())return false;
+        else{
+        //将对头直接+1，后续进队时，会将出队的位置直接覆盖，所以无需进行其他操作
+            front=(front+1)%circularqueue.length;
+        }
+        return true;
+    }
+</code></pre>
+<h3 id="取对头">取对头</h3>
+<pre><code class="language-java">public int Front() {
+        if(isEmpty()){
+            return -1;
+        }
+        else{
+            return circularqueue[front];
+        }
+	}
+</code></pre>
+<h3 id="取队尾">取队尾</h3>
+<p>由于队尾的有效元素在rear-1出，而当rear为0时，就会使下标为-1，所以我们需要对其进行加上数组长度再取模操作</p>
+<pre><code class="language-java">public int Rear() {
+        if(isEmpty())return -1;
+        else{
+            return circularqueue[(rear-1+circularqueue.length)%circularqueue.length];
+        }
+    }
+</code></pre>
+<h3 id="判空">判空</h3>
+<pre><code class="language-java">public boolean isEmpty() {
+        return rear==front;
+    }
+</code></pre>
+<h3 id="判满">判满</h3>
+<pre><code class="language-java">public boolean isFull() {
+        return (rear+1)%circularqueue.length==front;
+    }
+</code></pre>
+<h2 id="栈的压入和弹出顺序">栈的压入和弹出顺序</h2>
+<h3 id="描述">描述</h3>
+<p>输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否可能为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如序列1,2,3,4,5是某栈的压入顺序，序列4,5,3,2,1是该压栈序列对应的一个弹出序列，但4,3,5,1,2就不可能是该压栈序列的弹出序列。</p>
+<pre><code>输入：
+[1,2,3,4,5],[4,5,3,2,1]
+复制
+返回值：
+true
+复制
+说明：
+可以通过push(1)=&gt;push(2)=&gt;push(3)=&gt;push(4)=&gt;pop()=&gt;push(5)=&gt;pop()=&gt;pop()=&gt;pop()=&gt;pop()
+这样的顺序得到[4,5,3,2,1]这个序列，返回true
+</code></pre>
+<h3 id="思路">思路</h3>
+<p>我们由题目得知，有两个数组，一个为入栈数组，一个为出栈数组，判断出栈数组，是否符合入栈数组。</p>
+<p>这题思路比较简单，我们只需要模拟出栈的顺序就可以判断：</p>
+<pre><code class="language-java">public class Solution {
+    /**
+     * 代码中的类名、方法名、参数名已经指定，请勿修改，直接返回方法规定的值即可
+     *
+     * 
+     * @param pushV (入栈数组)int整型一维数组 
+     * @param popV （出栈数组）int整型一维数组 
+     * @return bool布尔型
+     */
+    public boolean IsPopOrder (int[] pushV, int[] popV) {
+        //申请一个栈用于模拟入栈顺序和出栈顺序
+        Stack&lt;Integer&gt;elem=new Stack&lt;&gt;();
+        //用于记录入栈数组下标
+        int j=0;
+		//循环访问入栈数组
+        for(int i=0;i&lt;popV.length;i++){
+            //当栈为空，或者栈顶元素不等与i下标的出栈元素时，一直将入栈数组对应的元素入栈，模拟入栈
+            while(j&lt;popV.length&amp;&amp;(elem.empty()||elem.peek()!=popV[i])){
+                elem.push(pushV[j]);
+                j++;
+            }
+            //如果栈顶元素与i下标出栈元素相同，我们就将栈顶pop，模拟栈出。
+            if(elem.peek()==popV[i]){
+                elem.pop();
+            } 
+        }
+        //当最后栈为空，就说明出栈顺序没有问题
+        if(elem.empty())return true;
+        return false;
+    }
+}
+</code></pre>
+<h2 id="逆波兰表达式">逆波兰表达式</h2>
+<h3 id="描述-2">描述</h3>
+<p>给你一个字符串数组 <code>tokens</code> ，表示一个根据 <a href="https://baike.baidu.com/item/%E9%80%86%E6%B3%A2%E5%85%B0%E5%BC%8F/128437">逆波兰表示法</a> 表示的算术表达式。</p>
+<p>请你计算该表达式。返回一个表示表达式值的整数。</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>
+<p>有效的算符为 <code>'+'</code>、<code>'-'</code>、<code>'*'</code> 和 <code>'/'</code> 。</p>
+</li>
+<li>
+<p>每个操作数（运算对象）都可以是一个整数或者另一个表达式。</p>
+</li>
+<li>
+<p>两个整数之间的除法总是 <strong>向零截断</strong> 。</p>
+</li>
+<li>
+<p>表达式中不含除零运算。</p>
+</li>
+<li>
+<p>输入是一个根据逆波兰表示法表示的算术表达式。</p>
+</li>
+<li>
+<p>答案及所有中间计算结果可以用 <strong>32 位</strong> 整数表示。</p>
+</li>
+<li>
+<pre><code class="language-java">输入：tokens = [&quot;2&quot;,&quot;1&quot;,&quot;+&quot;,&quot;3&quot;,&quot;*&quot;]
+输出：9
+解释：该算式转化为常见的中缀算术表达式为：((2 + 1) * 3) = 9
+</code></pre>
+</li>
+</ul>
+<h3 id="思路-2">思路</h3>
+<p>这个问题的解决思路相对比较简单，困难的是知道什么事逆波兰表达式，各位看官可自行了解，这里便不多赘述。</p>
+<p>当我们遇到数字时，将数字入栈</p>
+<p>遇到运算符时，取出栈顶元素p2，然后再取出栈顶元素p1，p2为运算符的右值，p1为左值，得出的结果入栈，重复此操作，直至将表达式遍历完成，最后的结果就是栈留下的最后一个元素。</p>
+<pre><code class="language-java">class Solution {
+    public int evalRPN(String[] tokens) {
+        Stack&lt;Integer&gt; elem=new Stack&lt;&gt;();
+        for(int i=0;i&lt;tokens.length;i++){
+            //取出表达式
+            String temp=tokens[i];
+            //当为运算符时
+            if(temp.equals(&quot;-&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1-p2);
+            }
+            else if(temp.equals(&quot;*&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1*p2);
+            }else if(temp.equals(&quot;+&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1+p2);
+            }else if(temp.equals(&quot;/&quot;)){
+                int p2=elem.pop();
+                int p1=elem.pop();
+                elem.push(p1/p2);
+            }
+            //当是数字的时候
+            else{
+                elem.push(Integer.valueOf(temp));
+            }
+        }  
+        //最后一个元素就是表达式结果
+        return elem.pop();
+    }
+
+}
+</code></pre>
+<h2 id="用栈模拟实现队列">用栈模拟实现队列</h2>
+<h3 id="描述-3">描述</h3>
+<p>请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（<code>push</code>、<code>pop</code>、<code>peek</code>、<code>empty</code>）：</p>
+<pre><code class="language-java">输入：
+[&quot;MyQueue&quot;, &quot;push&quot;, &quot;push&quot;, &quot;peek&quot;, &quot;pop&quot;, &quot;empty&quot;]
+[[], [1], [2], [], [], []]
+输出：
+[null, null, null, 1, 1, false]
+</code></pre>
+<h3 id="思路-3">思路</h3>
+<p>我们使用两个栈来辅助我们实现队列，一个是作为入队用的栈stack1，一个用作出队的栈stack2</p>
+<p>当我们入队时，直接将数据入栈到stack1中</p>
+<p>出队时，如果stack2 为空，将stack中的数据出栈并入栈到stack2中，再出栈stack2</p>
+<p>如果不为空，直接出栈stack2</p>
+<pre><code class="language-java">class MyQueue {
+    Stack&lt;Integer&gt;stack1;
+    Stack&lt;Integer&gt;stack2;
+    public MyQueue() {
+        stack1=new Stack&lt;&gt;();
+        stack2=new Stack&lt;&gt;();
+    }
+    
+    public void push(int x) {
+        stack1.push(x);
+    }
+    
+    public int pop() {
+        	//队列为空直接返回-1
+        if(empty())return -1;
+        else{
+                //至少有一个栈不为空
+            if(stack2.empty()){
+                //将stack1的数据入到stack2
+                while(!stack1.empty()){
+                    stack2.push(stack1.pop());
+                }
+                //stack2栈顶就是队列头元素
+                return stack2.pop();
+            }else{
+                return stack2.pop();
+            }
+        }
+    }
+    
+    public int peek() {
+    	//队列为空直接返回-1
+        if(empty())return -1;
+        //至少有一个栈不为空
+        else{
+        	//stack1不为空时
+             if(stack2.empty()){
+             //将stack1的数据入到stack2
+                 while(!stack1.empty()){
+                    stack2.push(stack1.pop());
+                }
+               //stack2栈顶就是队列头元素
+                return stack2.peek();
+            }else{
+                return stack2.peek();
+            }
+        }
+    }
+    //当1、2两个栈都为空时，队列为空
+    public boolean empty() {
+        return stack1.empty()&amp;&amp;stack2.empty();
+    }
+}
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/DXfiXeQ0J/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/java-xiao-xiang-mu-tu-shu-guan-li-xi-tong/">
+                  <h3 class="post-title">
+                    java小项目——图书管理系统
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

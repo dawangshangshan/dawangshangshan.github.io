@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Mysql——索引 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="什么是索引？
+当你去图书馆借书时，你是选择一个书架一个书架的寻找，还是根据图书馆提供的书籍目录来找呢？
+那肯定是选择目录来寻找，目录查找的时间比粗暴的寻找不知快多少。
+而目录就是充当索引的角色。
+那换到数据库中，索引的定义就是帮助存储引擎快..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Mysql——索引</h2>
+            <div class="post-date">2024-03-26</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="什么是索引">什么是索引？</h2>
+<p>当你去图书馆借书时，你是选择一个书架一个书架的寻找，还是根据图书馆提供的书籍目录来找呢？</p>
+<p>那肯定是选择目录来寻找，目录查找的时间比粗暴的寻找不知快多少。</p>
+<p>而目录就是充当索引的角色。</p>
+<p>那换到数据库中，索引的定义就是帮助存储引擎快速获取数据的一种数据结构，形象的说就是<strong>索引是数据的目录</strong>。</p>
+<h2 id="索引的数据结构btree">索引的数据结构——B+Tree</h2>
+<p>在本文中我们仅仅只谈论<code>MySQL</code>中最为常用也是面试中爱被提问的索引——<code>B+Tree</code>。</p>
+<p>索引能够帮助储存引擎快速的获取目标，而为了在大量的数据中能够快速的寻找到我们指定的数据，<code>Mysql</code>采用了<code>B+树</code>。</p>
+<h3 id="为什么使用btree呢">为什么使用B+Tree呢？</h3>
+<p>由于<code>B+Tree</code>特殊的数据结构，<code>B+Tree</code> 存储千万级的数据只需要 3-4 层高度就可以满足，这意味着从千万级的表查询目标数据最多需要 3-4 次磁盘 I/O。</p>
+<p>而这是其他结构无法达到的优势。（虽然<code>Hash</code>能够进行<code>O（1）</code>能查询，但<code>Hash</code>无法进行范围筛选，后续会讲到）。</p>
+<h3 id="btree的结构">B+Tree的结构</h3>
+<p>B+Tree是是一种多叉树，叶子节点才存放数据，非叶子节点只存放索引，而且每个节点里的数据是<strong>按主键顺序存放</strong>的。每一层父节点的索引值都会出现在下层子节点的索引值中，因此在叶子节点中，包括了所有的索引值信息，并且每一个叶子节点都有两个指针，分别指向下一个叶子节点和上一个叶子节点，形成一个双向链表。</p>
+<figure data-type="image" tabindex="1"><img src="https://cdn.xiaolincoding.com//mysql/other/dd076212a7637b9032c97a615c39dcd7.png" alt="图片" loading="lazy"></figure>
+<h3 id="不同的索引">不同的索引</h3>
+<ul>
+<li><strong>聚簇索引（主键索引）</strong>
+<ul>
+<li>主键索引的 B+Tree 的叶子节点存放的是实际数据，所有完整的用户记录都存放在主键索引的 B+Tree 的叶子节点里；</li>
+</ul>
+</li>
+<li><strong>二级索引（辅助索引）</strong>
+<ul>
+<li>二级索引的 B+Tree 的叶子节点存放的是主键值，而不是实际数据。</li>
+</ul>
+</li>
+</ul>
+<p>在创建表时，MySQL存储引擎会根据不同的场景选择不同的列作为索引：</p>
+<ul>
+<li>如果有主键，默认会使用主键作为聚簇索引的索引键（key）；</li>
+<li>如果没有主键，就选择第一个不包含 NULL 值的唯一列作为聚簇索引的索引键（key）；</li>
+<li>在上面两个都没有的情况下，Mysql将自动生成一个隐式自增 id 列作为聚簇索引的索引键（key）；</li>
+</ul>
+<p>其它索引都属于辅助索引（Secondary Index），也被称为二级索引或非聚簇索引。</p>
+<h3 id="回表">回表</h3>
+<p>当去利用二级索引查询数据试，会先检二级索引中的 <code>B+Tree</code> 的索引值，找到对应的叶子节点，获取主键值，然后再通过主键索引去查询对应的叶子节点，然后获取整行的数据。<strong>这个过程就是回表，需要查询一个二级索引和主键索引</strong>。</p>
+<p>不过，当查询的数据是能在二级索引的 B+Tree 的叶子节点里查询到，这时就不用再查主键索引查。</p>
+<h2 id="索引的缺点">索引的缺点</h2>
+<p>确点:</p>
+<ul>
+<li>占用物理空间，数据越大，占用越大</li>
+<li>创建和维护索引需要耗费时间，数据量越大，占用时间越多</li>
+<li>表的删除会引起索引的动态维护，这会导致表的删除效率降低</li>
+</ul>
+<h3 id="什么时候需要创建索引">什么时候需要创建索引</h3>
+<p>索引的优缺点都很明显，在有的场景下优点会被充分发挥出来，而有的场景确不能适配索引，所以要在上面情况下使用索引呢？</p>
+<h4 id="什么时候适用索引">什么时候适用索引？</h4>
+<ul>
+<li>字段有唯一性限制的，比如商品编码；</li>
+<li>经常用于 <code>WHERE</code> 查询条件的字段，这样能够提高整个表的查询速度，如果查询条件不是一个字段，可以建立联合索引。</li>
+<li>经常用于 <code>GROUP BY</code> 和 <code>ORDER BY</code> 的字段，这样在查询的时候就不需要再去做一次排序了，因为我们都已经知道了建立索引之后在 B+Tree 中的记录都是排序好的。</li>
+</ul>
+<h4 id=""><a href="https://xiaolincoding.com/mysql/index/index_interview.html#%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E4%B8%8D%E9%9C%80%E8%A6%81%E5%88%9B%E5%BB%BA%E7%B4%A2%E5%BC%95">#</a>什么时候不需要创建索引？</h4>
+<ul>
+<li><code>WHERE</code> 条件，<code>GROUP BY</code>，<code>ORDER BY</code> 里用不到的字段，索引的价值是快速定位，如果起不到定位的字段通常是不需要创建索引的，因为索引是会占用物理空间的。</li>
+<li>字段中存在大量重复数据，不需要创建索引，比如性别字段，只有男女，如果数据库表中，男女的记录分布均匀，那么无论搜索哪个值都可能得到一半的数据。在这些情况下，还不如不要索引，因为 MySQL 还有一个查询优化器，查询优化器发现某个值出现在表的数据行中的百分比很高的时候，它一般会忽略索引，进行全表扫描。</li>
+<li>表数据太少的时候，不需要创建索引；</li>
+<li>经常更新的字段不用创建索引，比如不要对电商项目的用户余额建立索引，因为索引字段频繁修改，由于要维护 B+Tree的有序性，那么就需要频繁的重建索引，这个过程是会影响数据库性能的。</li>
+</ul>
+<h2 id="总结">总结</h2>
+<p>在本章中，我们了解了mysql中最常用的索引——B+Tree，认识了它的逻辑结构，和它的有缺</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/tan-xin-fen-fa-tang-guo/">
+                  <h3 class="post-title">
+                    贪心：分发糖果
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

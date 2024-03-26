@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>c | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="大王上山的博客">
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <h2 class="current-tag">标签: c</h2>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://dawangshangshan.github.io/post/memcpy-he-memmove-ku-han-shu-xiang-jie/">
+                  <h2 class="post-title">memcpy和memmove库函数详解</h2>
+                </a>
+                <div class="post-date">
+                  2023-09-21
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
+              
+                <a class="right" href="https://dawangshangshan.github.io/post/memcpy-he-memmove-ku-han-shu-xiang-jie/">
+                  <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/memcpy-he-memmove-ku-han-shu-xiang-jie.jpg')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://dawangshangshan.github.io/post/guan-yu-zhi-zhen-de-yi-xie-xi-jie-nei-rong/">
+                  <h2 class="post-title">关于指针的一些细节内容</h2>
+                </a>
+                <div class="post-date">
+                  2023-09-19
+                </div>
+                <div class="post-abstract">
+                  <h3 id="我们将请出我们今天重要的嘉宾来为我们的指针的讲解出一份力">我们将请出我们今天重要的嘉宾来为我们的指针的讲解出一份力：</h3>
+<h2 id="sizeof函数">**sizeof()**函数：</h2>
+<p><strong>sizeof</strong>函数是一个用于计算数组大小的函数，它能够计算一个函数有多少字节。</p>
+<p>我们今天就利用sizeof函数来帮助我们进行解析指针。</p>
+<p>接下来直接上题：</p>
+<h2 id="第一题">第一题：</h2>
+<pre><code class="language-c">struct Test
+{
+	int Num;
+	char* pcName;
+	short sDate;
+	char cha[2];
+	short sBa[4];
+} * p;
+//假设p 的值为0x100000。 如下表表达式的值分别为多少？
+//已知，结构体Test类型的变量大小是20个字节
+//0x开头的数字是16进制的数字
+int main()
+{
+	p = (struct Test*)0x100000;
+	printf(&quot;%p\n&quot;, p + 0x1);
+	printf(&quot;%p\n&quot;, (unsigned long)p + 0x1);
+	printf(&quot;%p\n&quot;, (unsigned int*)p + 0x1);
+
+	return 0;
+}
+</code></pre>
+<h3 id="题解">题解：</h3>
+<p><em><strong>在vs上和x86环境下，我们的地址大小为4。</strong></em></p>
+<p>对于第一个：我们可以简单看出，是将 一个结构体指针——p + 0x1，其中加上0x1，我们可以直接看作+1；那么对一个指针直接加一，是什么结果呢？</p>
+<p>答：再整个同类型的指针，对此题，也就是在加上一个struct Test类型的大小，也就是，加上20字节  ，因此答案就是：<em><strong>00100014</strong></em>，前面的00是为了补足32位。</p>
+<p>对于第二个：我们可以简单看出，强制将p转换为了无符号长整型，而对无符号整型加一，就是在其值上加1，所以答案就是：<em><strong>00100001</strong></em>。</p>
+<p>对于第三个：我们可以简单看出，强制将p转换为了无符号整型指针，而对无符号整型指针加一，就是在其值上加4，所以答案就是：<em><strong>00100004</strong></em>。</p>
+<h2 id="第二题">第二题：</h2>
+<pre><code>int main()
+{
+	int aa[2][5] = { 10,9,8,7,6,5,4,3,2,1 };
+	int* ptr1 = (int*)(&amp;aa + 1);//第二行1后面的地址，&amp;aa+1相当于跳过了整个数组
+	int* ptr2 = (int*)(*(aa + 1));//第二行起始地址，即5
+	printf(&quot;%d,%d&quot;, *(ptr1 - 1), *(ptr2 - 1));//ptr1-1，即从1后面的地址变为1，ptr2-1，即从5减到上一行的6
+	return 0;
+}
+</code></pre>
+<h3 id="题解-2">题解：</h3>
+<p>对于二维数组来说，我们可以将它划分为两个部分,列如上面的数组：</p>
+<pre><code class="language-c">int aa[2][5] = { 10,9,8,7,6,5,4,3,2,1 };----&gt;aa[0][]={10,9,8,7,6}和aa[1][]={5,4,3,2,1}
+</code></pre>
+<p>这只是我们抽象出来的，在内存中储存依旧是连续的。</p>
+<p>对于ptr1来说：&amp;aa是整个数组的地址，加一就跳过了整个数组，因为本身地址就是int *类型，因此强制转换为int *没有影响。</p>
+<p>对于ptr2来说：aa是第一行的地址，第一行的地址加一，就是第二行起始位置。</p>
+<p>然后在printf中：ptr1-1，就指向了数组最后一个，结果为<em><strong>1</strong></em>，prt2-1，就到了第一行的最后一个，结果就是：5。</p>
+<h2 id="第三题">第三题：</h2>
+<pre><code>#include &lt;stdio.h&gt;
+int main()
+{
+	char* a[] = { &quot;work&quot;,&quot;at&quot;,&quot;alibaba&quot; };//work\0   at\0   alibaba\0
+	char** pa = a;//pa的类型是char**，是一个二级指针
+	pa++;
+	printf(&quot;%s\n&quot;, *pa);
+	return 0;
+}
+
+</code></pre>
+<h3 id="题解-3">题解：</h3>
+<p>有第一行和第二行我们可以得知：a是一个字符串数组，pa是一个二级指针。</p>
+<p>对于一个二级指针++一次，就是跳过一个char *类型的大小，故pa</p>
+<p>由指向a的第一个字符串，指向了第二个字符串地址，所以，解引用pa就是第二行元素，答案就是：at</p>
+<h2 id="第四题">第四题：</h2>
+<pre><code class="language-c">int main()
+{
+	int a[4] = { 1, 2, 3, 4 };
+	int* ptr1 = (int*)(&amp;a + 1);//跳过整个数组，在4后面
+	int* ptr2 = (int*)((int)a + 1);
+	printf(&quot;%x,%x&quot;, ptr1[-1], *ptr2);//ptr1[-1]相当于*(ptr1-1)，为4
+	return 0;
+}
+</code></pre>
+<h3 id="题解-4">题解：</h3>
+<p>对于ptr1来说：&amp;a就是取整个数组的地址，ptr1+1就到了指向了4后面。而ptr1[-1]就是访问ptr1当前位置的后一个数据类型，也就是：<em><strong>4</strong></em></p>
+<p>对于ptr2来说:将a（这里a是数组第一个的地址）强制转化为int类型，也就是01000000，+1后就是01000001（int型），然后在转换为整型指针，也就是：01000001（int*型），也就是移动了一个字节；而对地址来说，有四个字节，因此ptr2此时指向的内存地址不再是10（下面表格内容），而是跳过了01，指向01后面的00，而在对ptr2解引用，需要四个字节的地址，就读取到00 00 00 02，然后高地址放在高位，低地址放在地位，就是：02 00 00 00    因此打印出来就是：2000000。</p>
+<p><em><strong>扩充</strong></em>：由于我所使用的是小端机器，和32位环境下：</p>
+<p>对于数组的内存储存可以得知：</p>
+<table>
+<thead>
+<tr>
+<th>01000000 （1）</th>
+<th>02000000（2）</th>
+<th>03000000 （3）</th>
+<th>04000000（4）</th>
+</tr>
+</thead>
+</table>
+
+                </div>
+              </div>
+              
+                <a class="right" href="https://dawangshangshan.github.io/post/guan-yu-zhi-zhen-de-yi-xie-xi-jie-nei-rong/">
+                  <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/guan-yu-zhi-zhen-de-yi-xie-xi-jie-nei-rong.jpeg')">
+                  </div>
+                </a>
+              
+            </article>
+          
+            <article class="post-item">
+              <div class="left">
+                <a href="https://dawangshangshan.github.io/post/jie-gou-ti-ni-bu-de-bu-zhi-dao-de-zhi-shi/">
+                  <h2 class="post-title"># 结构体你不得不知道的知识！</h2>
+                </a>
+                <div class="post-date">
+                  2023-09-13
+                </div>
+                <div class="post-abstract">
+                  
+                </div>
+              </div>
+              
+                <a class="right" href="https://dawangshangshan.github.io/post/jie-gou-ti-ni-bu-de-bu-zhi-dao-de-zhi-shi/">
+                  <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/jie-gou-ti-ni-bu-de-bu-zhi-dao-de-zhi-shi.jpg')">
+                  </div>
+                </a>
+              
+            </article>
+          
+
+          <div class="pagination-container">
+  
+    <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh" class="prev"><i class="icon-arrow-ios-back-outline"></i> 上一页</a>
+  
+  
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

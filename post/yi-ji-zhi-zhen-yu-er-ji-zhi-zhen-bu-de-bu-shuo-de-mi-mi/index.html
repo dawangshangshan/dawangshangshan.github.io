@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>一级指针与二级指针不得不说的秘密 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰，让指针不在成为困扰我们写代码的绊脚石。
+#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+//给整型指针a开辟n个整型空间
+..." />
+    <meta name="keywords" content="c" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">一级指针与二级指针不得不说的秘密</h2>
+            <div class="post-date">2023-10-06</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/yi-ji-zhi-zhen-yu-er-ji-zhi-zhen-bu-de-bu-shuo-de-mi-mi.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h3 id="今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰让指针不在成为困扰我们写代码的绊脚石">今天我将给大家用几个列子来解决我们在使用一级指针和二级指针时的困扰，让指针不在成为困扰我们写代码的绊脚石。</h3>
+<pre><code class="language-c">#include&lt;stdio.h&gt;
+#include&lt;stdlib.h&gt;
+//给整型指针a开辟n个整型空间
+void Init_sum(int *a,int n)
+{
+    a=(int *)malloc(sizeof(int)*n)
+}
+
+int main()
+{
+	int *A=NULL;
+    Init(A,2);
+    for(int i=0;i&lt;2;i++)
+    {
+        scanf(&quot;%d&quot;,&amp;A[i]);
+	}
+    for(int i=0;i&lt;2;i++)
+    {
+        printf(&quot;%d&quot;,A[i]);
+	}
+}
+</code></pre>
+<p>以上代码是否是正确的呢？</p>
+<p>可能你不禁泛起嘀咕：感觉没什么问题啊！</p>
+<p>但事实是这个程序是错误的</p>
+<p>接下来我们就解释为什么：</p>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1696573147653.png" alt="" loading="lazy"></figure>
+<p>那么我们如何改正此代码呢？</p>
+<pre><code class="language-c">void Init_sum(int **a,int n)
+{
+    *a=(int *)malloc(sizeof(int)*n)
+}
+Init(&amp;A,2);
+</code></pre>
+<p>我们只需要对Init_sum，和传参进行改造即可：参数由一级指针改为二级指针，传参是传地址。</p>
+<p>图解：</p>
+<figure data-type="image" tabindex="2"><img src="https://dawangshangshan.github.io/post-images/1696573159969.png" alt="" loading="lazy"></figure>
+<h3 id="总结如果只是单纯改变指针中的内容用一级指针即可而要改变它所指向对象则需要二级指针">总结：如果只是单纯改变指针中的内容，用一级指针即可，而要改变它所指向对象，则需要二级指针。</h3>
+<!-- more -->
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh/" class="tag">
+                    c
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/lian-he-ti-yu-wei-duan-wei-yu/">
+                  <h3 class="post-title">
+                    联合体与位段（位域）
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

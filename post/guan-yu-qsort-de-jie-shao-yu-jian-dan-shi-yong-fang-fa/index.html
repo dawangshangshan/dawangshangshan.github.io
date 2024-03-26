@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title># 关于qsort的介绍，与简单使用方法 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="关于qsort的介绍，与简单使用方法
+qsort函数介绍：
+1.qsort是 C 标准库 -&lt;stdlib.h&gt;中的一个库函数
+				### 2.qsort的声明：
+
+​
+void qsort(void *base, size..." />
+    <meta name="keywords" content="C库函数" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title"># 关于qsort的介绍，与简单使用方法</h2>
+            <div class="post-date">2023-09-12</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/guan-yu-qsort-de-jie-shao-yu-jian-dan-shi-yong-fang-fa.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="关于qsort的介绍与简单使用方法">关于qsort的介绍，与简单使用方法</h1>
+<h2 id="qsort函数介绍"><strong>qsort函数介绍：</strong></h2>
+<h3 id="1qsort是-c-标准库-stdlibh中的一个库函数">1.<em>qsort是 C 标准库 -&lt;stdlib.h&gt;中的一个库函数</em></h3>
+<pre><code>				### 2.qsort的声明：
+</code></pre>
+<p>​</p>
+<pre><code class="language-c">void qsort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void*))
+</code></pre>
+<h3 id="3参数解析">3.参数解析：</h3>
+<ul>
+<li><strong>base</strong> -- 指向要排序的数组的第一个元素的指针。</li>
+<li><strong>nitems</strong> -- 由 base 指向的数组中元素的个数。</li>
+<li><strong>size</strong> -- 数组中每个元素的大小，以字节为单位。</li>
+<li><strong>compar</strong> -- 此为比较函数的函数指针，用以决定排序的顺序。<strong>注意</strong>：如果两个元素的值是相同的，那么它们的前后顺序是不确定的。</li>
+<li>**void **<em>:我们无法用一个实际类型来代表所以的类型，就将所类型都强制转换为void</em>，用以接受所有实际类型</li>
+</ul>
+<h3 id="4重要compar参数">4.*（重要）compar参数：</h3>
+<pre><code class="language-c">int compar(const void *p1, const void *p2);
+</code></pre>
+<p>compar是一个指向一个比较两个元数大小的函数，它是qsort函数排序的核心内容，qsort函数根据compar函数的返回内容来进行排序。</p>
+<p>注意两个形参必须是const <code>void *</code>型，在compar函数内部，会将const <code>void *</code>型转换为实际类型</p>
+<h4 id="compar函数">compar函数：</h4>
+<pre><code>int compare (const void * a, const void * b)
+{
+	return  ( *(MyType*)a -  *(MyType*)b );
+}
+</code></pre>
+<p><em><strong>注：MyType是你需要排序的对象的类型</strong></em></p>
+<p>如果 返回大于0，则 a所指向的内容大于b的</p>
+<p>如果 返回等于0，则 a所指向的内容等于b的</p>
+<p>如果 返回小于0，则 a所指向的内容小于b的</p>
+<h2 id="代码实现">代码实现：</h2>
+<h3 id="int-类型">int 类型：</h3>
+<pre><code class="language-c">int cmpfun_char(const void* a, const void* b)
+{
+    //升序
+	return *(char*)a- *(char *)b;
+    //降序
+    //return *(char*)b- *(char *)a;
+}
+
+qsort(arr, 5, sizeof(int), cmpfun_int);
+</code></pre>
+<h3 id="字符串类型">字符串类型:</h3>
+<pre><code class="language-c">int cmpfun_char(const void* a, const void* b)
+{
+	return *(char*)a- *(char *)b;
+}
+
+qsort(arr1, 5, sizeof(char), cmpfun_char);
+</code></pre>
+<h3 id="结构体类型">结构体类型：</h3>
+<pre><code>struct student {
+	int id;
+	char name[100];
+};
+//结构体类型的compar函数可以根据结构体成员来选择排序，这里我就选择了其中的int类型来进行排序，同理也可以选择字符串来进行。
+int cmpfun_struct(const void* a, const void* b)
+{
+	return  (*(struct student*)a).id - (*(struct student*)b).id;
+}
+
+struct student xxn[3] = { {12346,&quot;xiaow&quot;},{54646,&quot;xiaohu&quot;},{855455,&quot;xiaog&quot;} };
+
+qsort(xxn, 3, sizeof(arr[0]), cmpfun_struct);
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/pTTHPNvUU/" class="tag">
+                    C库函数
+                  </a>
+                
+              </div>
+            
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

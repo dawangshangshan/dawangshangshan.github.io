@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>Mysql语法基础（CRUD） | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="我们创建一个学生表，包含（id，name，score）；
+新增数据（create）
+insert into table_name values (value1),(value2)...;
+
+
+insert into : 关键字
+table_..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">Mysql语法基础（CRUD）</h2>
+            <div class="post-date">2024-03-17</div>
+            
+            <div class="post-content" v-pre>
+              <p>我们创建一个学生表，包含（id，name，score）；</p>
+<h2 id="新增数据create">新增数据（create）</h2>
+<pre><code class="language-sql">insert into table_name values (value1),(value2)...;
+</code></pre>
+<ul>
+<li><code>insert into</code> : 关键字</li>
+<li><code>table_name</code>：需要插入的表的名字</li>
+<li><code>values</code> : 后面跟所需要插入不同数量的数据，每一个括号就代表的时插入表的一行数据，其中的数据需要对应表的数据类型</li>
+</ul>
+<h2 id="查询数据retrieve">查询数据（Retrieve）</h2>
+<h3 id="全列查询">全列查询</h3>
+<pre><code class="language-sql">select * from table_name;
+</code></pre>
+<ul>
+<li><code>select</code> :查询的关键字</li>
+<li><code>*</code>：通识符，表示当前表的所有的列</li>
+<li><code>from</code> ：表示从什么表查询</li>
+</ul>
+<p>查询结果是一个二维表，包含了列名和每一行的数据</p>
+<p>同时select也可以不带from</p>
+<p>这种用法常用于判断当前数据库是否链接有效</p>
+<pre><code class="language-sql">select 1;
+</code></pre>
+<h3 id="投影查询指定列查询">投影查询（指定列查询）</h3>
+<p>在某系情况下，我们不需要将所有的列显示，只需要指定的列展示就ky，此时就可以指定列名，来选择显示</p>
+<pre><code class="language-sql">select id,name from student;
+</code></pre>
+<p>而且我们还可以给没一列起一个别名，这样结果集的列名就与原表名不同。</p>
+<pre><code class="language-sql">select id,name as studnetName from student;
+</code></pre>
+<p>当一这个此sql语句运行后，name将变成studentName</p>
+<p><strong>其中as可以省略</strong>。</p>
+<h3 id="条件查询">条件查询</h3>
+<p>我们很多时候并不希望查询所有的数据，而是希望查询一些满足特定条件的数据，例如，查询分数在80及以上的学生数据。当获取几百万的数据记录，十分耗时，而查询满足条件的数据量将会降低很多。</p>
+<pre><code class="language-sql">select * from student where score&gt;=80;
+</code></pre>
+<p><code>where</code>条件来设定查询条件，查询结果都是满足查询条件的。</p>
+<p>条件表达式可以用<code>&lt;条件1&gt; AND &lt;条件2&gt;</code>表达满足条件1并且满足条件2</p>
+<p>例如我们要查询分数大于80的，且还叫“王二”的同学</p>
+<ul>
+<li>条件一：<code>score&gt;=80</code>;</li>
+<li>条件二：<code>name=“王二”</code>；</li>
+</ul>
+<pre><code class="language-sql">select * from student where score&gt;=80 and name=&quot;王二&quot;;
+</code></pre>
+<p>第二种条件是<code>&lt;条件1&gt; OR &lt;条件2&gt;</code>，表示满足条件1或者满足条件2。</p>
+<p>例如我们要查询大于等于80分或者叫“王二”的同学</p>
+<pre><code class="language-sql">select * from student where score&gt;=80 or name=&quot;王二&quot;;
+</code></pre>
+<p>第三种条件是<code>NOT &lt;条件&gt;</code>，表示“不符合该条件”的记录。</p>
+<p>例如我们查询不是“王二”的同学</p>
+<pre><code class="language-sql">select * from student where not name=&quot;王二&quot;;
+</code></pre>
+<p>如果不加括号，条件运算按照<code>NOT、AND、OR</code>的优先级进行，即<code>NOT</code>优先级最高，其次是<code>AND</code>，最后是<code>OR</code>。加上括号可以改变优先级。</p>
+<h3 id="范围查询">范围查询</h3>
+<p>1.BETWEEN ... AND ...</p>
+<p>查询语文成绩在 [80, 90] 分的同学及成绩</p>
+<pre><code>select name, score from student where score between 80 and 90;
+使用 AND 也可以实现
+select name, score from student where score &gt;=80 and score&lt;= 90;
+
+</code></pre>
+<p>2.IN</p>
+<p>查询成绩在59或者60的同学以及成绩</p>
+<pre><code>select name ,score from student where score in (59,60);
+也可以用or来实现
+select name ,score from studnet where score=59 or score=60;
+</code></pre>
+<p>3.模糊查询：like</p>
+<pre><code>-- % 匹配任意多个（包括 0 个）字符
+select name from studnt where name like '孙%';-- 匹配到孙悟空、孙权
+-- _ 匹配严格的一个任意字符
+select name from studnt where name like LIKE '孙_';-- 匹配到孙权
+</code></pre>
+<h3 id="去重查询">去重查询</h3>
+<p>当不需要重复的数据时，可以用以下关键字进行去重操作</p>
+<pre><code class="language-sql">select distinct name from student;
+</code></pre>
+<p>关键字<code>distinct</code>将可以对某列进行去重。</p>
+<h3 id="排序">排序</h3>
+<p>如果不进行排序操作，那么当查询结果出来时，数据时按照插入顺序显示，当需要某一列有顺序时，需要在查询的时候进行对某列排序。</p>
+<p>例如，现在将找出学生中分数最低的同学。</p>
+<pre><code class="language-sql">select * from student order by score;
+</code></pre>
+<p><code>order by</code>就是进行排序的关键词，默认情况是升序，但是也可以在<code>order by</code>后加上<code>desc</code>，让其变成降序。</p>
+<p>也可以对多个列进行排序，<strong>排序优先级随书写顺序</strong></p>
+<p>如果有<code>WHERE</code>子句，那么<code>ORDER BY</code>子句要放到<code>WHERE</code>子句后面。这样，结果集仅包含符合<code>WHERE</code>条件的记录，并按照<code>ORDER BY</code>的设定排序。</p>
+<h3 id="分页查询">分页查询</h3>
+<p>如果数据量十分巨大，那么查询出来的数据放在一个页面上的话数量十分大，不方便越大；</p>
+<p>此时将其分页显示的话就会十分合适。而分页功能，就是是将数据分成指定条数作为一页。</p>
+<p>我们将结果分页，每页10条数据。</p>
+<pre><code class="language-sql">select * from student order by score limit 10 offset 0;
+</code></pre>
+<p><code>limit 10 offset 0</code>表示，对结果从第0条数据开始，最多取10条（可能数据量小于设定的分页数量）。</p>
+<p>当想跳过第一页时，我们只需<code>limit 10 offset 10</code>就可以查询到第二页。</p>
+<h3 id="聚合查询">聚合查询</h3>
+<h4 id="聚合函数">聚合函数</h4>
+<p>聚和函数就是sql在面对一些简单的数学计算，如：求平均、总数等，而专门提供的函数。</p>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COUNT([DISTINCT] expr)</td>
+<td>返回查询到的数据的 数量</td>
+</tr>
+<tr>
+<td>SUM([DISTINCT] expr)</td>
+<td>返回查询到的数据的 总和，不是数字没有意义</td>
+</tr>
+<tr>
+<td>AVG([DISTINCT] expr)</td>
+<td>返回查询到的数据的 平均值，不是数字没有意义</td>
+</tr>
+<tr>
+<td>MAX([DISTINCT] expr)</td>
+<td>返回查询到的数据的 最大值，不是数字没有意义</td>
+</tr>
+<tr>
+<td>MIN([DISTINCT] expr)</td>
+<td>返回查询到的数据的 最小值，不是数字没有意义</td>
+</tr>
+</tbody>
+</table>
+<p>要特别注意：如果聚合查询的<code>WHERE</code>条件没有匹配到任何行，<code>COUNT()</code>会返回0，而<code>SUM()</code>、<code>AVG()</code>、<code>MAX()</code>和<code>MIN()</code>会返回<code>NULL</code>：</p>
+<h4 id="分组">分组</h4>
+<p>SELECT 中使用 <code>GROUP BY</code> 子句可以对指定列进行分组查询。需要满足：使用 <code>GROUP BY</code> 进行分组查<br>
+询时，SELECT 指定的字段必须是“分组依据字段”，其他字段若想出现在SELECT 中则必须包含在聚合函<br>
+数中。</p>
+<pre><code class="language-sql">select column1, sum(column2), .. from table group by column1,column3;
+</code></pre>
+<p>案例：</p>
+<ul>
+<li>
+<p>准备测试表及数据：职员表，有id（主键）、name（姓名）、role（角色）、salary（薪水）</p>
+</li>
+<li>
+<p>查询每个角色的最高工资、最低工资和平均工资</p>
+<pre><code class="language-SQL">- create table emp(
+- id int primary key auto_increment,
+- name varchar(20) not null,
+- role varchar(20) not null,
+- salary numeric(11,2)
+- );
+- insert into emp(name, role, salary) values
+- ('马云','服务员', 1000.20),
+- ('马化腾','游戏陪玩', 2000.99),
+- ('孙悟空','游戏角色', 999.11),
+- ('猪无能','游戏角色', 333.5),
+- ('沙和尚','游戏角色', 700.33),
+- ('隔壁老王','董事长', 12000.66);
+</code></pre>
+</li>
+<li>
+<p>查询每个角色的最高工资、最低工资和平均工资</p>
+<pre><code class="language-SQL">select role,max(salary),min(salary),avg(salary) from emp group by role;  
+</code></pre>
+</li>
+</ul>
+<h4 id="having">Having</h4>
+<p><code>GROUP BY</code> 子句进行分组以后，需要对分组结果再进行条件过滤时，不能使用 <code>WHERE</code> 语句，而需要用<br>
+HAVING</p>
+<ul>
+<li>
+<p>显示平均工资低于1500的角色和它的平均工资</p>
+<pre><code class="language-sql">select role,max(salary),min(salary),avg(salary) from emp group by role
+having avg(salary)&lt;1500;
+</code></pre>
+</li>
+</ul>
+<h3 id="联合查询多表查询">联合查询（多表查询）</h3>
+<p>在实际开发中，往往需要处理来自不同表的数据，所以需要进行联合查询。联合查询就是对多张表的笛卡儿积；</p>
+<p>查询多张表的语法是：<code>SELECT * FROM &lt;表1&gt; &lt;表2&gt;</code>。</p>
+<pre><code>select * from aaa,bbb;
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://dawangshangshan.github.io/post-images/1710662154696.png" alt="" loading="lazy"></figure>
+<p>使用笛卡尔查询时要非常小心，由于结果集是目标表的行数乘积，假如表一有m行，表二有n行，那么它们的笛卡尔查询将返回n*m行，当n和m较大时，返回的数据量将十分大。</p>
+<h3 id="连接查询">连接查询</h3>
+<p>连接查询是另一种类型的多表查询。连接查询对多个表进行JOIN运算，简单地说，就是先确定一个主表作为结果集，然后，把其他表的行有选择性地“连接”在主表结果集上。</p>
+<h4 id="内连接">内连接</h4>
+<pre><code>select 字段 from 表1 别名1 [inner] join 表2 别名2 on 连接条件 and 其他条件;
+select 字段 from 表1 别名1,表2 别名2 where 连接条件 and 其他条件;
+</code></pre>
+<h4 id="外连接">外连接</h4>
+<p>外连接分为左外连接和右外连接。</p>
+<p>如果联合查询，<strong>左侧的表完全显示我们就说是左外连接</strong>；<strong>右侧的表完全显示我们就说是右外连接</strong>。</p>
+<pre><code>-- 左外连接，表1完全显示
+select 字段名 from 表名1 left join 表名2 on 连接条件;
+-- 右外连接，表2完全显示
+select 字段 from 表名1 right join 表名2 on 连接条件;
+</code></pre>
+<p>外连接的特点是当我们选择了完全显示一侧后，即使另一侧没有对应数据，需要完全显示的一侧也会显示，没有的数据则用null来填充。</p>
+<h2 id="修改和删除update-and-delete">修改和删除（Update and Delete）</h2>
+<h3 id="修改">修改</h3>
+<p>当需要在数据库表的数据进行修改是，可以使用关键词<code>update</code>来将对应数据修改；</p>
+<pre><code>update &lt;表名&gt; set 字段1=值1，字段2=值2 ... where ...
+</code></pre>
+<pre><code class="language-sql">--将一班，姓名为张三的同学，分数改为90；
+update students set score=90 where name='张三' and classid=1;
+</code></pre>
+<h3 id="删除">删除</h3>
+<pre><code>delete from 表名 where ....;
+</code></pre>
+<pre><code>--删除一班，姓名为张三的同学；
+delete from student where name='张三' and classid=1;
+</code></pre>
+<h2 id="总结">总结</h2>
+<p>以上就是mysql中简单的crud，希望我的文章能够给你带来帮助。</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/you-xian-ji-dui-lie-dui/">
+                  <h3 class="post-title">
+                    优先级队列（堆）
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

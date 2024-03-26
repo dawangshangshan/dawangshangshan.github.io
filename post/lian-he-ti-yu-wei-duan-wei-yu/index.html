@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>联合体与位段（位域） | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="联合体：
+定义：
+在C语言中，变量的定义是分配存储空间的过程。一般的，每个变量都具有其独有的存储空间，那么可不可以在同一个内存空间中存储不同的数据类型（不是同时存储）呢？
+答案是可以的，使用联合体就可以达到这样的目的。联合体也叫共用体，在C..." />
+    <meta name="keywords" content="c" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">联合体与位段（位域）</h2>
+            <div class="post-date">2023-09-24</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/lian-he-ti-yu-wei-duan-wei-yu.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="联合体">联合体：</h2>
+<h3 id="定义">定义：</h3>
+<p>在C语言中，变量的定义是分配存储空间的过程。一般的，每个变量都具有其独有的存储空间，那么可不可以在同一个内存空间中存储不同的数据类型（不是同时存储）呢？</p>
+<p>答案是可以的，使用<code>联合体</code>就可以达到这样的目的。<code>联合体也叫共用体</code>，在C语言中定义联合体的关键字是<code>union</code>。</p>
+<h3 id="一般形式为">一般形式为：</h3>
+<pre><code class="language-c">//第一种
+union A
+{
+	int a；
+    double b;
+    char c;
+}；
+union A a
+//第二种  模板和变量一起创建
+union B
+{
+	int a；
+    double b;
+    char c;
+}；
+union B b
+//匿名  无法再创建其他联合体对象，对于此联合体，只有c联合体变量一个对象
+union 
+{
+	int a；
+    double b;
+    char c;
+}c；
+</code></pre>
+<p>整体上来说，联合体的形式与结构体相似。</p>
+<p>但是结构体和共用体的区别在于：结构体的各个成员会占用不同的内存，互相之间没有影响；而共用体的</p>
+<p>所有成员占用同一段内存，修改一个成员会影响其余所有成员。</p>
+<p>我们在联合体中创建了三个变量，但是我们在实际使用过程中我们只会使用其中一个变量，使用多个会造成数据错误。接下来对为什么会造成错误进行具体解释。</p>
+<h3 id="联合体内存">联合体内存：</h3>
+<p>结构体占用的内存大于等于所有成员占用的内存的总和（成员之间可能会存在缝隙），共用体占用的内存等于最长的成员占用的内存。共用体使用了内存覆盖技术，同一时刻只能保存一个成员的值，如果对新的成员赋值，就会把原来成员的值覆盖掉。</p>
+<p>eg(<em><strong>在小端上进行（分为大端和小端），内存分布情况不同会有不同的结果</strong></em>）:</p>
+<pre><code>#include &lt;stdio.h&gt;
+union data{
+    int n;
+    char ch;
+    short m;
+};
+int main(){
+    union data a;
+    printf(&quot;%d, %d\n&quot;, sizeof(a), sizeof(union data) );
+    a.n = 0x40;
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+    a.ch = '9';
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+    a.m = 0x2059;
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+    a.n = 0x3E25AD54;
+    printf(&quot;%X, %c, %hX\n&quot;, a.n, a.ch, a.m);
+   
+    return 0;
+}
+</code></pre>
+<pre><code class="language-c">//运行结果为：
+4, 4
+40, @, 40
+39, 9, 39
+2059, Y, 2059
+3E25AD54, T, AD54
+</code></pre>
+<p>这段代码不但验证了共用体的长度，还说明共用体成员之间会相互影响，修改一个成员的值会影响其他成员。</p>
+<p>要想理解上面的输出结果，弄清成员之间究竟是如何相互影响的，就得了解各个成员在内存中的分布。以上面的 data 为例，各个成员在内存中的分布如下：</p>
+<figure data-type="image" tabindex="1"><img src="http://c.biancheng.net/uploads/allimg/190118/152553G12-0.jpg" alt="img" loading="lazy"></figure>
+<p>成员 n、ch、m 在内存中“对齐”到一头，对 ch 赋值修改的是前一个字节，对 m 赋值修改的是前两个字节，对 n 赋值修改的是全部字节。也就是说，ch、m 会影响到 n 的一部分数据，而 n 会影响到 ch、m 的全部数据。</p>
+<h3 id="应用场景">应用场景：</h3>
+<p>由于在一个联合体中，改变一个变量的值会导致另一个也改变；所以我们使用联合体的场景是当我们只会用到联合体中的其中唯一一个变量。</p>
+<p>如：</p>
+<p>现有一张关于学生信息和教师信息的表格。学生信息包括姓名、编号、性别、职业、分数，教师的信息包括姓名、编号、性别、职业、教学科目。请看下面的表格：</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Num</th>
+<th>Sex</th>
+<th>Profession</th>
+<th>Score / Course</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HanXiaoXiao</td>
+<td>501</td>
+<td>f</td>
+<td>s</td>
+<td>89.5</td>
+</tr>
+<tr>
+<td>YanWeiMin</td>
+<td>1011</td>
+<td>m</td>
+<td>t</td>
+<td>math</td>
+</tr>
+<tr>
+<td>LiuZhenTao</td>
+<td>109</td>
+<td>f</td>
+<td>t</td>
+<td>English</td>
+</tr>
+<tr>
+<td>ZhaoFeiYan</td>
+<td>982</td>
+<td>m</td>
+<td>s</td>
+<td>95.0</td>
+</tr>
+</tbody>
+</table>
+<p>f 和 m 分别表示女性和男性，s 表示学生，t 表示教师。可以看出，学生和教师所包含的数据是不同的。现在要求把这些信息放在同一个表格中，并设计程序输入人员信息然后输出。</p>
+<p>如果把每个人的信息都看作一个结构体变量的话，那么教师和学生的前 4 个成员变量是一样的，第 5 个成员变量可能是 score 或者 course。当第 4 个成员变量的值是 s 的时候，第 5 个成员变量就是 score；当第 4 个成员变量的值是 t 的时候，第 5 个成员变量就是 course。</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#define TOTAL 4  //人员总数
+struct{
+    char name[20];
+    int num;
+    char sex;
+    char profession;
+    union{
+        float score;
+        char course[20];
+    } sc;
+} bodys[TOTAL];
+int main(){
+    int i;
+    //输入人员信息
+    for(i=0; i&lt;TOTAL; i++){
+        printf(&quot;Input info: &quot;);
+        scanf(&quot;%s %d %c %c&quot;, bodys[i].name, &amp;(bodys[i].num), &amp;(bodys[i].sex), &amp;(bodys[i].profession));
+        if(bodys[i].profession == 's'){  //如果是学生
+            scanf(&quot;%f&quot;, &amp;bodys[i].sc.score);
+        }else{  //如果是老师
+            scanf(&quot;%s&quot;, bodys[i].sc.course);
+        }
+        fflush(stdin);
+    }
+    //输出人员信息
+    printf(&quot;\nName\t\tNum\tSex\tProfession\tScore / Course\n&quot;);
+    for(i=0; i&lt;TOTAL; i++){
+        if(bodys[i].profession == 's'){  //如果是学生
+            printf(&quot;%s\t%d\t%c\t%c\t\t%f\n&quot;, bodys[i].name, bodys[i].num, bodys[i].sex, bodys[i].profession, bodys[i].sc.score);
+        }else{  //如果是老师
+            printf(&quot;%s\t%d\t%c\t%c\t\t%s\n&quot;, bodys[i].name, bodys[i].num, bodys[i].sex, bodys[i].profession, bodys[i].sc.course);
+        }
+    }
+    return 0;
+}
+</code></pre>
+<h2 id="位段位域">位段（位域）：</h2>
+<h3 id="说明">说明：</h3>
+<p>有些数据在存储时并不需要占用一个完整的字节，只需要占用一个或几个二进制位即可。例如开关只有通电和断电两种状态，用 0 和 1 表示足以，也就是用一个二进位。正是基于这种考虑，C语言又提供了一种叫做位域的数据结构。</p>
+<h3 id="内存说明">内存说明：</h3>
+<p>在结构体定义时，我们可以指定某个成员变量所占用的二进制位数（Bit），这就是位域。请看下面的例子：</p>
+<pre><code class="language-c">struct bs{
+    unsigned m;
+    unsigned n: 4;
+    unsigned char ch: 6;
+};
+</code></pre>
+<p><code>:</code>后面的数字用来限定成员变量占用的位数。成员 m 没有限制，根据数据类型即可推算出它占用 4 个字节（Byte）的内存。成员 n、ch 被<code>:</code>后面的数字限制，不能再根据数据类型计算长度，它们分别占用 4、6 位（Bit）的内存。</p>
+<p>n、ch 的取值范围非常有限，数据稍微大些就会发生溢出，请看下面的例子：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+int main(){
+    struct bs{
+        unsigned m;
+        unsigned n: 4;
+        unsigned char ch: 6;
+    } a = { 0xad, 0xE, '$'};
+    //第一次输出
+    printf(&quot;%#x, %#x, %c\n&quot;, a.m, a.n, a.ch);
+    //更改值后再次输出
+    a.m = 0xb8901c;
+    a.n = 0x2d;
+    a.ch = 'z';
+    printf(&quot;%#x, %#x, %c\n&quot;, a.m, a.n, a.ch);
+    return 0;
+}
+</code></pre>
+<p>运行结果：<br>
+0xad, 0xe, $<br>
+0xb8901c, 0xd, :</p>
+<p>对于 n 和 ch，第一次输出的数据是完整的，第二次输出的数据是残缺的。</p>
+<p>第一次输出时，n、ch 的值分别是 0xE、0x24（'$' 对应的 ASCII 码为 0x24），换算成二进制是 1110、10 0100，都没有超出限定的位数，能够正常输出。</p>
+<p>第二次输出时，n、ch 的值变为 0x2d、0x7a（'z' 对应的 ASCII 码为 0x7a），换算成二进制分别是 10 1101、111 1010，都超出了限定的位数。超出部分被直接截去，剩下 1101、11 1010，换算成十六进制为 0xd、0x3a（0x3a 对应的字符是 :）。</p>
+<p>C语言标准规定，位域的宽度不能超过它所依附的数据类型的长度。通俗地讲，成员变量都是有类型的，这个类型限制了成员变量的最大长度，<code>:</code>后面的数字不能超过这个长度。</p>
+<p>例如上面的 bs，n 的类型是 unsigned int，长度为 4 个字节，共计 32 位，那么 n 后面的数字就不能超过 32；ch 的类型是 unsigned char，长度为 1 个字节，共计 8 位，那么 ch 后面的数字就不能超过 8。</p>
+<p>我们可以这样认为，位域技术就是在成员变量所占用的内存中选出一部分位宽来存储数据。</p>
+<p>C语言标准还规定，只有有限的几种数据类型可以用于位域。在 ANSI C 中，这几种数据类型是 int、signed int 和 unsigned int（int 默认就是 signed int）。</p>
+<p>但编译器在具体实现时都进行了扩展，额外支持了 char、signed char、unsigned char 以及 enum 类型，所以上面的代码虽然不符合C语言标准，但它依然能够被编译器支持。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh/" class="tag">
+                    c
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/jie-gou-ti-ni-bu-de-bu-zhi-dao-de-zhi-shi-geng-xin/">
+                  <h3 class="post-title">
+                    结构体你不得不知道的知识！（更新）
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

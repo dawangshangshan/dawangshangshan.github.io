@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>贪心：分发糖果 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="贪心：分发糖果
+题目
+n 个孩子站成一排。给你一个整数数组 ratings 表示每个孩子的评分。
+你需要按照以下要求，给这些孩子分发糖果：
+
+每个孩子至少分配到 1 个糖果。
+相邻两个孩子评分更高的孩子会获得更多的糖果。
+
+请你给每个孩子分..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">贪心：分发糖果</h2>
+            <div class="post-date">2024-03-19</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="贪心分发糖果">贪心：分发糖果</h1>
+<h2 id="题目">题目</h2>
+<p><code>n</code> 个孩子站成一排。给你一个整数数组 <code>ratings</code> 表示每个孩子的评分。</p>
+<p>你需要按照以下要求，给这些孩子分发糖果：</p>
+<ul>
+<li>每个孩子至少分配到 <code>1</code> 个糖果。</li>
+<li>相邻两个孩子评分更高的孩子会获得更多的糖果。</li>
+</ul>
+<p>请你给每个孩子分发糖果，计算并返回需要准备的 <strong>最少糖果数目</strong> 。</p>
+<h2 id="示例-1"><strong>示例 1：</strong></h2>
+<pre><code>输入：ratings = [1,0,2]
+输出：5
+解释：你可以分别给第一个、第二个、第三个孩子分发 2、1、2 颗糖果。
+</code></pre>
+<p><strong>示例 2：</strong></p>
+<pre><code>输入：ratings = [1,2,2]
+输出：4
+解释：你可以分别给第一个、第二个、第三个孩子分发 1、2、1 颗糖果。
+     第三个孩子只得到 1 颗糖果，这满足题面中的两个条件。
+</code></pre>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>n == ratings.length</code></li>
+<li><code>1 &lt;= n &lt;= 2 * 104</code></li>
+<li><code>0 &lt;= ratings[i] &lt;= 2 * 104</code></li>
+</ul>
+<h2 id="题解">题解</h2>
+<p>当一拿到此题，我们第一个想法就是，一次遍历，并且同时兼顾两边来作出此题，当时当我们尝试过后，就会发现并不可行。</p>
+<p>那为什么这样的方法不行呢？<br>
+因为当我们只从一边去我们很难兼顾两边，<strong>必然会导致顾此失彼</strong>。<br>
+我们只从一边出发并且要兼顾两边时，面对以下情况会就会出现难以得到正确答案：<br>
+<code>ratings：[29,51,87,87,72,12]</code><br>
+从左边出发：<br>
+如果我们去判断第二个孩子的糖果数量时，它要大于<br>
+第一个，小于第三个，此时第三的孩子的糖果数量都是未知的，我们很难去判断。<br>
+从右边出发也同理。<br>
+于是我们就提出猜想：是否我们一次处理一边会更好？<br>
+我们作出以下操作:</p>
+<h3 id="从左边出发并只处理左边的情况">从左边出发并只处理左边的情况：</h3>
+<p>将最左边的糖果数量设为1；</p>
+<p><code>ratings:   [29, 51, 87, 87, 72, 12]</code></p>
+<p><code>candysleft: [1,  2, 3,  1,  1,   1]</code></p>
+<h4 id="解释">解释：</h4>
+<p>第一次比较：51&gt;29，所以51的糖果比29的多一个；<br>
+第二次比较：87&gt;51，所以87的糖果比51的多一个；<br>
+第三次比较：87=87，所以第二个87的糖果为1；<br>
+第四次比较：72&lt;82，所以72的糖果为1；<br>
+第五次比较：12&lt;72，所以12的糖果为1；</p>
+<h4 id="代码实现">代码实现：</h4>
+<pre><code class="language-java">for(int i=1;i&lt;ratingsLength;i++){
+    //当比左边大时，糖果数量为左边的数量加一，否则为1
+    candysleft[i]=ratings[i]&gt;ratings[i-1]?candysleft[i-1]+1:1;
+}
+</code></pre>
+<h3 id="从右边出发并只处理右边的情况">从右边出发并只处理右边的情况：</h3>
+<p>将最右边的糖果数量设为1；</p>
+<p><code>下标  ：    [ 0， 1， 2，  3， 4，  5]</code></p>
+<p><code>ratings：   [29, 51, 87, 87, 72,  12]</code></p>
+<p><code>candyright: [ 1,  1,  1, 3 ,  2 , 1 ]</code></p>
+<p>解释：</p>
+<p>第一次比较：72&gt;12，72的糖果比12的多一个；</p>
+<p>第二次比较：87&gt;72，87的糖果比72得多一个；</p>
+<p>第三次比较：87=87，最左边的87的糖果为1；</p>
+<p>第四次比较：51&lt;87，51的糖果为1；</p>
+<p>第四次比较：29&lt;51，29的糖果为1；</p>
+<pre><code class="language-java">for(int i=ratingsLength-2;i&gt;=0;i--){
+    //当比右边大时，糖果数量为右边的数量加一，否则为1
+    candysright[i]=(ratings[i]&gt;ratings[i+1])?candysright[i+1]+1:1;
+}
+</code></pre>
+<h3 id="将两次都结果合并">将两次都结果合并</h3>
+<p><code>下标  ：    [ 0，1，2， 3， 4，  5]</code></p>
+<p><code>ratings：  [29,51, 87,87, 72, 12]</code></p>
+<p><code>candysleft: [1, 2, 3, 1 , 1,  1]</code></p>
+<p><code>candyright: [1, 1, 1, 3 , 2 , 1]</code></p>
+<p>最终结果（将结果存储到candysleft中）：<code>candysleft： [1，2，3，3，2，1]</code></p>
+<p>我们合并时，只需要将同下标，最大的一个作为结果就能得到结果；</p>
+<p>那么为什么要最大的那个糖果数量呢？</p>
+<p>这是因为我们的两个结果都是只对比了一边的结果，同一下标的最大糖果数，代表着是最合理的数量</p>
+<p>例如：下标为4的糖果数量，<code>candysleft[4] = 1</code>,<code>candysright[4] = 3</code>,</p>
+<p>一个是考虑了左边的结果，一个是考虑了右边的结果，</p>
+<p>大的结果，明显符合结果：[87 ，72  ，12 ]，72要小与87，同时要大于12;</p>
+<p>而小的结果不符合题目要求,72是1，但是72&gt;12,明显与要求冲突。</p>
+<h2 id="代码实现-2">代码实现</h2>
+<pre><code class="language-java">public int candy(int[] ratings) {
+        int ratingsLength=ratings.length;
+        //对比左边分数所分发的糖果
+        int[] candysleft=new int[ratingsLength];
+        //对比右边的分数所分发的糖果
+        int[] candysright=new int[ratingsLength];
+        //将第一个设置为1，因为第一个没有左边
+        candysleft[0]=1;
+        //将最后一个设置为1，因为最后一个没有右边
+        candysright[ratingsLength-1]=1;
+        //记录最少糖果数量
+        int count=0;
+        for(int i=1;i&lt;ratingsLength;i++){
+            //当比左边大时，糖果数量为左边的数量加一，否则为1
+            candysleft[i]=ratings[i]&gt;ratings[i-1]?candysleft[i-1]+1:1;
+        }
+
+        for(int i=ratingsLength-2;i&gt;=0;i--){
+            //当比右边大时，糖果数量为右边的数量加一，否则为1
+            candysright[i]=(ratings[i]&gt;ratings[i+1])?candysright[i+1]+1:1;
+        }
+        //当拥有了左右两边都糖果分发数量后，我们就可以就出所需的糖果
+        for(int i=0;i&lt;ratingsLength;i++){
+            //将candys1作为结果数组，两个糖果数组比较，取大的数量
+            candysleft[i]=candysleft[i]&gt;candysright[i]?candysleft[i]:candysright[i];
+            count+=candys1[i];
+        }
+        return count;
+    }
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/mysql-yu-fa-ji-chu-crud/">
+                  <h3 class="post-title">
+                    Mysql语法基础（CRUD）
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

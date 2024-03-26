@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>KMP算法难点解析 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="当我们实现在文本中寻找是否有特定的文本出现，我们需要实现文本匹配算法。
+比如在文本：aabaabaaf   中，我们要查询是否有文本：aabaaf出现。
+关于暴力求解，我就不再过多赘述，直接进入正题。
+kmp算法的关键——最长公共前后缀
+关..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">KMP算法难点解析</h2>
+            <div class="post-date">2023-10-24</div>
+            
+            <div class="post-content" v-pre>
+              <p>当我们实现在文本中寻找是否有特定的文本出现，我们需要实现文本匹配算法。</p>
+<p>比如在文本：aabaabaaf   中，我们要查询是否有文本：aabaaf出现。</p>
+<p>关于暴力求解，我就不再过多赘述，直接进入正题。</p>
+<h2 id="kmp算法的关键最长公共前后缀">kmp算法的关键——最长公共前后缀</h2>
+<p>关于前后缀不了解的同学，我会简略说明。</p>
+<h3 id="前后缀">前后缀：</h3>
+<p><strong>前缀</strong>：<strong>是指不包含最后一个字符的所有以第一个字符开头的连续子串</strong>。</p>
+<p><strong>后缀</strong>：<strong>是指不包含第一个字符的所有以最后一个字符结尾的连续子串</strong>。</p>
+<p>如aabaa：</p>
+<p>前缀：a，aa，aab，aaba（从前向后）</p>
+<p>后缀：a,  aa ,  baa ,  abaa（从后向前）</p>
+<h3 id="最长公共前后缀next数组的关键">最长公共前后缀（next数组的关键）</h3>
+<p>我们使用上文的列子  eg：</p>
+<pre><code class="language-c">下标			012345
+文本			aabaaf
+前缀表  	   010120 
+//前缀表是用来回退的，它记录了模式串与主串(文本串)不匹配的时候，模式串应该从哪里开始重新匹配。
+</code></pre>
+<p>对于<strong>a</strong>，它是没有最长公共前后缀的。</p>
+<p>对于aa，前缀是a，后缀是a，前后缀有一个相同，这值为1</p>
+<p>对于aab，前缀是aa，后缀是ab，不相同，值为0；</p>
+<p>对于aaba，前缀是aab，后缀是aba，只有第一个相同，值为1；</p>
+<p>对于aabaa，前缀是aaba，后缀是  abaa，最长相等（aa）为2个，值为2。</p>
+<p>因此我们得到了此文本的前缀表。</p>
+<h2 id="next数组代码实现">next数组代码实现</h2>
+<pre><code class="language-c">//前缀表的实现
+//T字符串是所需要查询的文本，len是字符串大小
+void getNext(const char* T, int* next,int len)
+{
+	int j = 0;
+	next[0] = 0;
+    //第一个的前缀表一定是零，故初始化next[0]，并跳过第一个
+    //i=1
+	for (int i = 1; i &lt; len; i++)
+	{
+        //前后缀不相同的时候
+		while (j &gt; 0 &amp;&amp; T[i] != T[j])
+		{
+			j = next[j - 1];//当不相等时，j回退，如果回退后还不相							//等，继续回退，直到j==0。
+		}
+        //相同的时候
+		if (T[i] == T[j])
+		{
+			j++;
+		}
+		//将j（前缀的长度）赋给next[i]
+		next[i] = j;
+	}
+} 
+</code></pre>
+<p>当我们有了前缀表后，就可以进行匹配了。</p>
+<h2 id="kmp实现">KMP实现：</h2>
+<pre><code class="language-c">int KMP(char* S, char* T, int* next, int Slen,int Tlen)
+{
+    //j指向T，T是aabaaf。
+	int j = 0;
+    //i指向S文本，S是aabaabaaf。
+	for (int i = 0; i &lt; Slen; i++)
+	{
+
+		if (S[i] = T[j])
+		{
+			j++;
+		}
+		else {
+			while (j &gt; 0 &amp;&amp; S[i] != T[j])
+			{
+				j = next[j - 1];//退回，直到S[i]==T[j]或者j==0
+			}
+		}
+        //匹配完成
+		if (j == Tlen - 1 )
+		{
+			return 1;
+		}
+
+	}
+	return -1;
+}
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/DXfiXeQ0J/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/yue-bao/">
+                  <h3 class="post-title">
+                    9月月报
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

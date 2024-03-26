@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title># 二叉树的题解  ##  | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="一.二叉树中节点的路径
+题目要求：在一个二叉树中，p为二叉树中的某一个值，编写算法求出p到根节点之间的路径
+样列：
+给出二叉树的前序遍历：AB#D##C##
+查询节点D到根节点的路径
+输出：ABD
+算法思路：
+利用回溯算法保存每个节点到根节..." />
+    <meta name="keywords" content="算法" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title"># 二叉树的题解  ## </h2>
+            <div class="post-date">2023-11-03</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="一二叉树中节点的路径">一.二叉树中节点的路径</h2>
+<p><strong>题目要求：在一个二叉树中，p为二叉树中的某一个值，编写算法求出p到根节点之间的路径</strong></p>
+<p>样列：</p>
+<p>给出二叉树的前序遍历：AB#D##C##</p>
+<p>查询节点D到根节点的路径</p>
+<p>输出：ABD</p>
+<h3 id="算法思路">算法思路：</h3>
+<p>利用回溯算法保存每个节点到根节点的路径，直到找到对应节点的路径时储存当前节点。</p>
+<figure data-type="image" tabindex="1"><img src="https://code-thinking-1253855093.file.myqcloud.com/pics/20210204151702443.png" alt="257.二叉树的所有路径" loading="lazy"></figure>
+<h3 id="代码实现">代码实现：</h3>
+<pre><code class="language-c++">void pathrecord(BT root, vector&lt;char&gt;&amp; spath, 
+                string&amp; retpath,char target) {
+
+	spath.push_back(root-&gt;val);
+	if (root-&gt;val == target) {
+		for (int i = 0; i &lt; spath.size(); i++) {
+			retpath += spath[i];
+		}
+		return;
+	}
+		if (root-&gt;left) {
+			pathrecord(root-&gt;left, spath, retpath, target);
+			spath.pop_back();
+		}
+		if (root-&gt;right) {
+			pathrecord(root-&gt;right, spath, retpath, target);
+			spath.pop_back();
+		}
+}
+</code></pre>
+<p>在实现代码时，四个参数的分别是：</p>
+<ul>
+<li>二叉树变量</li>
+<li>记录二叉树当前的路径的vector容器</li>
+<li>用于储存目标路径的字符串</li>
+<li>目标节点</li>
+</ul>
+<pre><code class="language-c++">spath.push_back(root-&gt;val);
+//将节点保存到spath中
+</code></pre>
+<pre><code class="language-c++">if (root-&gt;val == target) {
+	for (int i = 0; i &lt; spath.size(); i++) {
+		retpath += spath[i];
+	}
+	return;
+}
+//当我们找到对应节点时，将此时的spath中的内容保存到retpath中
+</code></pre>
+<h3 id="回溯">回溯：</h3>
+<p>这是这道题的关键部分，通常情况，回溯是伴随着递归同时出现。</p>
+<p>什么是回溯？</p>
+<p>如此图：</p>
+<figure data-type="image" tabindex="2"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231102114120835.png" alt="image-20231102114120835" loading="lazy"></figure>
+<p>当我们递归到D节点时，再退回的B节点时，我们记录路径的spath将不能再是ABD,</p>
+<p>而应该是AB，因为此时是在B节点上，此时应该对应：B到根节点的路径。</p>
+<pre><code class="language-c++">if (root-&gt;left) {
+		pathrecord(root-&gt;left, spath, retpath, target);
+		spath.pop_back();
+}
+if (root-&gt;right) {
+		pathrecord(root-&gt;right, spath, retpath, target);
+		spath.pop_back();
+}
+</code></pre>
+<p>当我们在遍历左右节点后，该操作就是回溯：</p>
+<pre><code class="language-c++">spath.pop_back();
+</code></pre>
+<h2 id="层序遍历">层序遍历：</h2>
+<p>我们使用队列来辅助实现<strong>队列先进先出，符合一层一层遍历的逻辑，而用栈先进后出适合模拟深度优先遍历也就是递归的逻辑。</strong></p>
+<figure data-type="image" tabindex="3"><img src="https://code-thinking.cdn.bcebos.com/gifs/102%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86.gif" alt="102二叉树的层序遍历" loading="lazy"></figure>
+<pre><code class="language-c++">vector&lt;vector&lt;int&gt;&gt; tiertraversal(BT root) {
+	queue&lt;BT&gt;que;
+	if (root != NULL) {
+		que.push(root);
+	}
+	vector&lt;vector&lt;int&gt;&gt;result;
+	while (!que.empty()) {
+		int size = que.size();
+		vector&lt;int&gt;vec;
+		while (size--) {
+			BT temp = que.front();
+			que.pop();
+			vec.push_back(temp-&gt;val);
+			if (temp-&gt;left!=NULL) {
+				que.push(temp-&gt;left);
+			}
+			if(temp-&gt;right != NULL) {
+				que.push(temp-&gt;right);
+			}
+		}
+		result.push_back(vec);
+	}
+
+	return result;
+}
+
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="C:%5CUsers%5CASUS%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20231102120817577.png" alt="image-20231102120817577" loading="lazy"></figure>
+<p>对于该二叉树，我们先将根节点加进队列中，</p>
+<pre><code class="language-c++">queue&lt;BT&gt;que;//二叉树类型的队列
+	if (root != NULL) {
+		que.push(root);
+	}
+</code></pre>
+<p>此时第一层已经遍历完了。此时队列的大小为1，是二叉树第一层的大小。</p>
+<pre><code class="language-c++">vector&lt;vector&lt;int&gt;&gt;result;//记录所有层的节点
+	while (!que.empty()) {
+		int size = que.size();//记录当前层有多少节点
+		vector&lt;int&gt;vec;//用来记录当前层的节点
+		//当size为0时，说明当前层pop完毕
+		while (size--) {
+			BT temp = que.front();
+			que.pop();//将此层节点按照顺序出队列
+			vec.push_back(temp-&gt;val);//将节点数据push进记录当前                                      //  层的vector中
+			//每pop一个节点，就将它有效的左右节点push进入队列中
+			if (temp-&gt;left!=NULL) {
+				que.push(temp-&gt;left);
+			}
+			if(temp-&gt;right != NULL) {
+				que.push(temp-&gt;right);
+			}
+		}
+		//将此层的数据，push进入记录所有节点的vector容器中
+		result.push_back(vec);
+	}
+</code></pre>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/DXfiXeQ0J/" class="tag">
+                    算法
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi/">
+                  <h3 class="post-title">
+                    KMP算法难点解析
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

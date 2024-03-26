@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>结构体你不得不知道的知识！（更新） | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="结构体内存分配：
+
+
+结构体变量的首地址是其最长基本类型成员的整数倍；
+
+
+结构体每个成员相对于结构体首地址的偏移量（offset）都是成员大小的整数倍，如有需要编译器会在成员之间加上填充字节（internal adding）；
+
+
+结构体..." />
+    <meta name="keywords" content="c" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">结构体你不得不知道的知识！（更新）</h2>
+            <div class="post-date">2023-09-23</div>
+            
+              <div class="feature-container" style="background-image: url('https://dawangshangshan.github.io/post-images/jie-gou-ti-ni-bu-de-bu-zhi-dao-de-zhi-shi-geng-xin.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="结构体内存分配">结构体内存分配：</h2>
+<ol>
+<li>
+<h3 id="结构体变量的首地址是其最长基本类型成员的整数倍"><strong>结构体变量的首地址是其最长基本类型成员的整数倍；</strong></h3>
+</li>
+<li>
+<h3 id="结构体每个成员相对于结构体首地址的偏移量offset都是成员大小的整数倍如有需要编译器会在成员之间加上填充字节internal-adding"><strong>结构体每个成员相对于结构体首地址的偏移量（offset）都是成员大小的整数倍，如有需要编译器会在成员之间加上填充字节（internal adding）；</strong></h3>
+</li>
+<li>
+<h3 id="结构体的总大小为结构体最宽基本类型成员大小的-整数-倍如有需要编译器会在最末一个成员之后加上填充字节trailing-padding"><strong>结构体的总大小为结构体最宽基本类型成员大小的 整数 倍，如有需要，编译器会在最末一个成员之后加上填充字节（trailing padding）。</strong></h3>
+</li>
+<li>
+<h3 id="结构体内类型相同的连续元素将在连续的空间内和数组一样"><strong>结构体内类型相同的连续元素将在连续的空间内，和数组一样。</strong></h3>
+</li>
+<li>
+<h3 id="如果结构体内存在长度大于处理器位数的元素那么就以处理器的倍数为对齐单位否则如果结构体内的元素的长度都小于处理器的倍数的时候便以结构体里面最长的数据元素为对齐单位"><strong>如果结构体内存在长度大于处理器位数的元素，那么就以处理器的倍数为对齐单位；否则，如果结构体内的元素的长度都小于处理器的倍数的时候，便以结构体里面最长的数据元素为对齐单位。</strong></h3>
+</li>
+</ol>
+<h3 id="例子">例子：</h3>
+<pre><code class="language-c">int main()
+{
+	struct Stu {
+		char a[3];
+		char b[20];
+		char c;
+		double d;
+		char e;
+	};
+	struct Stu std = { 'a','a','a',1,1 };
+	printf(&quot;%d\n&quot;, sizeof(std));
+	printf(&quot;%p %p %p %p %p %p\n&quot;, &amp;std.a, &amp;std.b,&amp;std.c, &amp;std.d, &amp;std.e);
+}
+
+//结果得：40
+//       012FF9CC 012FF9CF 012FF9E3 012FF9E4 012FF9EC 00901023
+</code></pre>
+<p>这个结构体中，最长基本单位为double，即为8字节；<br>
+第一个变量a没有偏移，内存大小为3字节；</p>
+<p>第二个变量b本身为20字节，与前面的变量加起来23字节，并不是8字节的倍数，故空出1字节，总共为24字节；<br>
+第三个变量c本身字节为1，刚好填入前面空出的字节中，故总共为24字节；<br>
+第四个变量d本身字节为8，为8字节的整数倍，故分配8字节，此时加起来32字节；<br>
+第五非变量e本身字节为1，并不是8字节的整数倍，故分配最小倍数8字节补齐，此时加起来内存大小40字节；</p>
+<h2 id="结构体嵌套">结构体嵌套：</h2>
+<p>以上知识你了解了的话，我们继续深入学习，了解结构体嵌套时，如何计算内存大小。</p>
+<h3 id="规则">规则：</h3>
+<ul>
+<li>如果嵌套结构体，嵌套的结构体对齐到自己的<strong>最大对齐数的整数倍</strong>处，结构体的整体大小就是所有最大对齐数（<strong>包含嵌套结构体的对齐数</strong>）的整数倍。</li>
+</ul>
+<pre><code class="language-c">struct s1 {
+	int a;
+	char b;
+	short c;
+	double d;
+};
+
+struct s2 {
+	int A;
+	struct s1 B;
+	char C;
+}S2;
+
+int main()
+{
+	printf(&quot;%d&quot;, sizeof(S2));
+}
+</code></pre>
+<p>有前面所学，我们可以简单算出s1的内存大小时16字节；</p>
+<p>当嵌套到s2里面时，在s2中最大对齐数是s1里面的double类型，为8字节。</p>
+<p>因此，s2的内存情况为：A 占用8字节，有四个字节空闲，s1为16字节，C占用8字节，空闲7字节。</p>
+<p>故，s2内存大小为：32字节。</p>
+<h2 id="结构体为什么需要内存对齐">结构体为什么需要内存对齐？</h2>
+<ul>
+<li>平台移植型好
+<ul>
+<li>不是所有的硬件平台都能访问任意地址上的数据；某些硬件平台只能只在某些地址访问某些特定类型的数据，否则抛出硬件异常，及遇到未对齐的边界直接就不进行读取数据了。</li>
+</ul>
+</li>
+<li>cpu处理效率高
+<ul>
+<li><img src="https://img-blog.csdn.net/20180802154708619?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L01pc3N6aG91ZGFuZGFu/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" alt="img" loading="lazy"></li>
+</ul>
+</li>
+</ul>
+<p>从上图可以看出，对应两种存储方式，若CPU的读取粒度为4字节，</p>
+<ul>
+<li>那么对于一个int 类型，若是按照内存对齐来存储，处理器只需要访存一次就可以读取完4个字节</li>
+<li>若没有按照内存对其来读取，如上图所示，就需要访问内存两次才能读取出一个完整的int 类型变量</li>
+<li>具体过程为，第一次拿出 4个字节，丢弃掉第一个字节，第二次拿出4个字节，丢弃最后的三个字节，然后拼凑出一个完整的 int 类型的数据。</li>
+</ul>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh/" class="tag">
+                    c
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/memcpy-he-memmove-ku-han-shu-xiang-jie/">
+                  <h3 class="post-title">
+                    memcpy和memmove库函数详解
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>

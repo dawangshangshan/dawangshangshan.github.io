@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>c语言——#define与条件编译 | 大王上山的Bolg</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://dawangshangshan.github.io/favicon.ico?v=1711461025561">
+<link rel="stylesheet" href="https://dawangshangshan.github.io/styles/main.css">
+
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css" />
+  
+
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="一、明示常量#define
+#define:
+
+
+#define 用于创建宏定义，可以用来定义符号常量、函数宏和其他代码片段的替代。
+
+
+它不创建新的数据类型，而只是简单地进行文本替换。当你使用 #define 创建一个符号常量时，编译器会..." />
+    <meta name="keywords" content="c" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://dawangshangshan.github.io">
+        <img src="https://dawangshangshan.github.io/images/avatar.png?v=1711461025561" class="site-logo">
+        <h1 class="site-title">大王上山的Bolg</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/archives" class="site-nav" target="_blank">
+            文章
+          </a>
+        
+      
+        
+          <a href="/tag/MvKN4IVwy/" class="site-nav">
+            月报
+          </a>
+        
+      
+        
+          <a href="https://dawangshangshan.github.io/post/kmp-suan-fa-nan-dian-jie-xi" class="site-nav">
+            算法
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/dawangshangshan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      大王上山的博客
+    </div>
+    <div class="site-footer">
+      Emil：2837351402@qq.com | <a class="rss" href="https://dawangshangshan.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">c语言——#define与条件编译</h2>
+            <div class="post-date">2023-10-19</div>
+            
+            <div class="post-content" v-pre>
+              <h2 id="一-明示常量define">一、明示常量#define</h2>
+<h3 id="define"><code>#define</code>:</h3>
+<ul>
+<li>
+<p><code>#define</code> 用于创建宏定义，可以用来定义符号常量、函数宏和其他代码片段的替代。</p>
+</li>
+<li>
+<p>它不创建新的数据类型，而只是简单地进行文本替换。当你使用 <code>#define</code> 创建一个符号常量时，编译器会在编译时将该符号替换为相应的值。</p>
+</li>
+<li>
+<p>例如：</p>
+<pre><code class="language-c">#define PI 3.14159265359
+</code></pre>
+<p>这会在编译时将所有的</p>
+<pre><code class="language-c">PI
+</code></pre>
+<p>替换为</p>
+<pre><code class="language-c">3.14159265359
+</code></pre>
+</li>
+</ul>
+<h3 id="define-与typedef-的区别">#define 与typedef 的区别</h3>
+<ol>
+<li><strong>宏定义 vs. 类型定义</strong>:
+<ul>
+<li><code>#define</code> 用于创建宏定义，而不创建新的数据类型。它简单地进行文本替换。例如，<code>#define PI 3.14159265359</code> 会将所有的 <code>PI</code> 替换为 <code>3.14159265359</code>，但它仍然被视为一个常量符号而不是新的数据类型。</li>
+<li><code>typedef</code> 用于创建类型别名，允许你为现有的数据类型创建一个新的名称。这创建了一个新的类型，可以用来增加代码的可读性和可维护性。</li>
+</ul>
+</li>
+<li><strong>编译时替换 vs.类型别名</strong>:
+<ul>
+<li><code>#define</code> 进行编译时替换。它只是简单地将一个标识符替换为定义的文本，没有类型检查或类型信息。这可以导致潜在的错误，因为没有关于替换文本的类型信息。</li>
+<li><code>typedef</code> 创建一个新的类型别名，与原始类型相关。这有助于提高代码的可读性，并保留了类型检查。类型别名的使用可以帮助减少潜在的类型错误。</li>
+</ul>
+</li>
+<li><strong>作用范围</strong>:
+<ul>
+<li><code>#define</code> 定义的符号常量可以在整个程序中的任何地方使用，因为它们是简单的文本替换。它们通常不受作用域的限制。</li>
+<li><code>typedef</code> 创建的类型别名通常受限于它们的作用域，与类型定义的位置有关。这使得 <code>typedef</code> 更具局部性，有助于避免全局污染。</li>
+</ul>
+</li>
+</ol>
+<p>总的来说，<code>#define</code> 用于创建宏定义，主要用于创建符号常量和代码替代，而 <code>typedef</code> 用于创建类型别名，主要用于提高代码的可读性和可维护性，以及创建新的类型别名。它们在用途、作用方式和范围上有很大的不同。</p>
+<h3 id="eg">eg：</h3>
+<pre><code class="language-c">#define INT_POINTER int *
+typedef int* int_pointer;
+int main()
+{
+    INT_POINTER a,b;
+    int_pointer c,d;
+}
+</code></pre>
+<p>在以上代码中a、b、c、d谁不是指针？</p>
+<p>答案是：b；</p>
+<p>为什么呢？</p>
+<p>我们对**#define 处理的进行替换**；得到</p>
+<pre><code class="language-c">int *a,b;
+</code></pre>
+<p>我们可以发现只有第一个是指针，因为*只有a才有，b没有，所有b是int类型:</p>
+<pre><code class="language-c">int (*a),b;
+</code></pre>
+<p>我们再对typedef 进行分析：</p>
+<pre><code class="language-c">(int *) a,b;
+//等价于
+int *a,int *b;
+</code></pre>
+<h3 id="再define中使用参数">再#define中使用参数</h3>
+<pre><code class="language-c">#define MAX(x,y) ((x)&gt;(y)?(x):(y))
+//其中x,y宏参数
+int main()
+{
+    int a=3;
+    int b=5;
+    int ret=MAX(a,b);
+}
+//当在代码中使用了MAX(a,b),编译器会将其替换((a)&gt;(b)?(a):(b))
+</code></pre>
+<p>需要注意以下几点：</p>
+<ol>
+<li>带参数的宏的参数被括在圆括号中，这有助于避免潜在的运算优先级问题。</li>
+<li>使用带参数的宏时，确保将参数括在圆括号中，以避免由于操作符优先级问题而导致意外的行为。</li>
+</ol>
+<h4 id="用宏参数擦创造字符串">用宏参数擦创造字符串：#</h4>
+<pre><code class="language-c">#define PRINT(a,type) printf(&quot; &quot;#a&quot; is type&quot;,a);
+
+int main()
+{
+	int b=10b;b
+	PRINT(b,%d);
+}
+//在宏中如果我们不使用 #a 而直接使用a，在打印是，只会打印出字符a出来，
+//而无法打印我们传递的d
+//使用 #a 就是将传递过去的参数给转换为字符串，以供我们打印
+</code></pre>
+<h2 id="条件编译">条件编译</h2>
+<p>条件编译是一种在C和C++中用于根据条件选择性包含或排除代码的技术。它使用预处理器指令，通常与 <code>#ifdef</code>、<code>#ifndef</code>、<code>#elif</code>、<code>#else</code> 和 <code>#endif</code> 一起使用。条件编译的主要目的是根据不同的编译时条件来配置程序，以在不同的情况下执行不同的代码。</p>
+<p>以下是一些常见的条件编译指令：</p>
+<ol>
+<li>
+<p><code>#ifdef</code> 和 <code>#ifndef</code>：</p>
+<ul>
+<li>
+<p><code>#ifdef</code> 检查是否已定义了指定的宏。</p>
+</li>
+<li>
+<p><code>#ifndef</code> 检查是否未定义指定的宏。</p>
+</li>
+<li>
+<p>例如：</p>
+<pre><code class="language-c">#ifdef DEBUG
+// 只有在 DEBUG 宏已定义时才编译这部分代码
+printf(&quot;Debug mode is enabled.\n&quot;);
+#endif
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><code>#elif</code> 和 <code>#else</code>：</p>
+<ul>
+<li>
+<p><code>#elif</code> 允许你在多个条件之间选择一个。</p>
+</li>
+<li>
+<p><code>#else</code> 用于指定一个条件不满足时要执行的代码块。</p>
+</li>
+<li>
+<p>例如：</p>
+<pre><code class="language-c">#ifdef DEBUG
+printf(&quot;Debug mode is enabled.\n&quot;);
+#elif RELEASE
+printf(&quot;Release mode is enabled.\n&quot;);
+#else
+printf(&quot;No build mode defined.\n&quot;);
+#endif
+</code></pre>
+</li>
+</ul>
+</li>
+<li>
+<p><code>#endif</code>：</p>
+<ul>
+<li>用于结束条件编译块。</li>
+</ul>
+</li>
+</ol>
+<p>条件编译的使用场景包括：</p>
+<ul>
+<li>跨平台开发：根据不同的操作系统或编译器特性选择性地包含代码。</li>
+<li>调试信息：根据是否启用调试宏，可以包含或排除调试信息。</li>
+<li>特性开关：根据用户选项或配置文件中的特性开关选择性地启用或禁用功能。</li>
+<li>针对不同的硬件架构：可以根据不同的硬件平台选择性地编译代码。</li>
+</ul>
+<p>条件编译可以提高代码的灵活性，但过度使用可能会导致代码的可读性下降。因此，建议在需要时谨慎使用条件编译，以确保代码清晰、易维护和可移植。</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://dawangshangshan.github.io/tag/RRj9xE6Xh/" class="tag">
+                    c
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://dawangshangshan.github.io/post/wen-jian-de-shu-ru-shu-chu/">
+                  <h3 class="post-title">
+                    文件的输入输出
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+              
+                <div id="gitalk-container" data-aos="fade-in"></div>
+              
+
+              
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+
+      var gitalk = new Gitalk({
+        clientID: 'b0e76452f6f63638e5ba',
+        clientSecret: '855e512b5a6e4397ff5ed626f17da42512d915b5',
+        repo: 'dawangshangshan.github.io',
+        owner: 'dawangshangshan',
+        admin: ['dawangshangshan'],
+        id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+      })
+
+      gitalk.render('gitalk-container')
+
+    </script>
+  
+
+  
+
+
+
+
+  </body>
+</html>
